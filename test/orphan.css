@@ -1,0 +1,29 @@
+html {
+    font-size: 16px;
+    /* my .stylelintrc should ignore keyword case differences for font-family */
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* should allow single-line selectors like this */
+body, main {
+    /* hex color code should be all caps & 6-chars */
+    color: #fff;
+    background: black;
+    /* should be unitless for zero values */
+    min-width: 0em;
+    /* no end of selector block empty line */
+
+}
+
+/* should also allow multiline selectors */
+div,
+span {
+    margin: 0;
+    padding: 0;
+}
+
+/* mixing same line and multiline selectors should get warning */
+a, p,
+h1, h2, h3, h4, h5, h6 {
+    font-weight: normal;
+}

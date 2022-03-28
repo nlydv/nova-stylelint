@@ -1,0 +1,199 @@
+---
+extends: stylelint-config-standard
+
+ignoreFiles:
+  - "**/*.less"
+  - "**/node_modules/*"
+  - "**/vendor/*"
+  - "**/icon/*"
+  - "**/img/*"
+  - "**/js/*"
+
+rules:
+
+  # ————————————————————————————————————————————————————————————————————————— #
+
+    # Base CSS custom rules on top of the stylelint-config-standard ruleset.
+
+  # ————————————————————————————————————————————————————————————————————————— #
+
+    indentation:
+      - 4
+      - baseIndentLevel: 1
+        indentClosingBrace: false
+
+    max-line-length:
+      - 180
+      - ignore:
+          - comments
+
+    property-no-unknown:
+      - true
+      - ignoreProperties:
+          - font-named-instance
+
+    font-family-no-duplicate-names:
+      - true
+      - ignoreFontFamilyNames:
+          - monospace
+
+    value-keyword-case:
+      - lower
+      - ignoreProperties:
+          - font-family
+          - text-rendering
+        ignoreKeywords:
+          - BlinkMacSystemFont
+
+    no-eol-whitespace:
+      - true
+      - ignore:
+          - empty-lines
+
+    rule-empty-line-before:
+      - always-multi-line
+      - ignore:
+          - after-comment
+          - inside-block
+
+    # Preferred notation rules
+    alpha-value-notation: percentage
+    color-function-notation: modern
+    hue-degree-notation: angle
+
+    # Modified rules to avoid errors
+    # at-rule-empty-line-before:
+    #   - always
+    #   - except:
+    #       - blockless-after-same-name-blockless
+    #     ignore:
+    #       - after-comment
+    #       - inside-block
+    #     ignoreAtRules:
+    #       - import
+    #       - include
+    #       - extend
+    #       - each
+    #       - else
+    #       - return
+
+    # Format for selector lists
+    selector-list-comma-space-before:          never
+    selector-list-comma-space-after:           always-single-line
+    selector-list-comma-newline-before:        never-multi-line
+    selector-list-comma-newline-after:         always-multi-line
+    selector-combinator-space-before:          always
+    selector-combinator-space-after:           always
+
+    # Other rules
+    color-hex-case:                            upper
+    color-hex-length:                          long
+    at-rule-no-unknown:                        true
+    font-family-name-quotes:                   always-unless-keyword
+    function-parentheses-space-inside:         null
+
+    # Disabled — new/empty line rules
+    max-empty-lines:                           null
+    block-no-empty:                            null
+    comment-no-empty:                          null
+    comment-empty-line-before:                 null
+    declaration-empty-line-before:             null
+    custom-property-empty-line-before:         null
+    function-parentheses-newline-inside:       null
+    block-closing-brace-empty-line-before:     null
+
+    # Disabled — vendor prefix
+    property-no-vendor-prefix:                 null
+    selector-no-vendor-prefix:                 null
+    value-no-vendor-prefix:                    null
+
+    # Disabled — misc.
+    number-no-trailing-zeros:                  null
+    selector-pseudo-class-no-unknown:          null
+    no-descending-specificity:                 null
+    number-max-precision:                      null
+    declaration-colon-space-after:             null
+    declaration-block-no-duplicate-properties: null
+
+
+overrides:
+
+# ————————————————————————————————————————————————————————————————————————— #
+
+  # Rules and options that kick in only when linting Sass files. Better to
+  # conditionally set these configs so that stylelint doesn't pointlessly
+  # load and check against Sass-specific plugins' rulesets every time it
+  # encounters non-Sass files. Should help improve performance.
+
+# ————————————————————————————————————————————————————————————————————————— #
+
+  - files:
+      - "/**/*.scss"
+      - "/**/*.sass"
+    extends: stylelint-config-standard-scss
+    plugins: stylelint-scss
+    rules:
+        comment-no-empty:                   null
+        function-name-case:                 null
+        at-rule-no-unknown:                 null
+        no-duplicate-selectors:             null
+        block-closing-brace-newline-after:  null
+        no-invalid-position-at-import-rule: null
+        at-rule-empty-line-before:
+          - always
+          - except:
+              - blockless-after-same-name-blockless
+            ignore:
+              - after-comment
+              - blockless-after-blockless
+              - inside-block
+            ignoreAtRules:
+              - import
+              - include
+              - extend
+              - each
+              - else
+              - return
+              - use
+              - forward
+
+        # Stylelint-scss plugin rules
+        scss/comment-no-empty:                       null
+        scss/double-slash-comment-empty-line-before: null
+        scss/dollar-variable-empty-line-before:      null
+        scss/at-if-closing-brace-newline-after:      null
+        scss/at-if-closing-brace-space-after:        null
+        scss/at-else-closing-brace-newline-after:    null
+        scss/at-else-closing-brace-space-after:      null
+        scss/at-else-empty-line-before:              null
+        scss/dollar-variable-colon-space-after:      at-least-one-space
+        scss/at-mixin-pattern:                       '[-_]?[a-z][a-zA-Z0-9]+'
+        scss/at-function-pattern:                    '[-_]?[a-z][a-zA-Z0-9]+'
+
+# ————————————————————————————————————————————————————————————————————————— #
+
+  # Rules applicable only to CSS files stored alongside a "src" subfolder.
+  # This contextual override makes it possible for compiled/pre-processed
+  # CSS output files to have specific rule configs to avoid running into
+  # useless linting errors as well as to provide build processes additional
+  # auto-fixable rule configs that wouldn't otherwise be enabled for regular
+  # hand-written CSS.
+
+# ————————————————————————————————————————————————————————————————————————— #
+
+  - files:
+      - "css/src/../*.css"
+      - "**/css/src/../*.css"
+    rules:
+        function-name-case:                          null
+        no-duplicate-selectors:                      null
+        at-rule-name-space-after:                    null
+        selector-list-comma-newline-after:           always
+        no-invalid-position-at-import-rule:          null
+        at-rule-empty-line-before:
+          - always
+          - except:
+              - blockless-after-same-name-blockless
+            ignore:
+              - after-comment
+              - inside-block

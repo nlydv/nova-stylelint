@@ -1,0 +1,10 @@
+---
+extends: stylelint-config-standard
+
+overrides:
+  - files:
+      - "/**/*.scss"
+      - "/**/*.sass"
+
+    extends: stylelint-config-standard-scss
+    plugins: stylelint-scss

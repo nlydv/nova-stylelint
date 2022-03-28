@@ -1,0 +1,22 @@
+@use "sass:meta";
+
+@function sass-function($param) {
+    @if meta.type-of($param)==number {
+        @return $param * 10;
+    } @else {
+        @return $param + " (string)";
+    }
+}
+
+html, body {
+    font-size: sass-function(5) + px;
+    color: #000000;
+    background-color: #fff;
+
+    display: flex;
+
+    &::before {
+        font-size: 0;
+        content: sass-function('hello, world');
+    }
+}

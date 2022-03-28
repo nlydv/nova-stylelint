@@ -1,0 +1,38 @@
+---
+env:
+    browser: false
+    node: true
+    es6: true
+    nova/nova: true
+
+plugins:
+    - nova
+
+parserOptions:
+    ecmaVersion: latest
+    sourceType: module
+
+extends: eslint:recommended
+
+rules:
+    indent:
+        - error
+        - 4
+        - SwitchCase: 1
+
+    linebreak-style:
+        - error
+        - unix
+
+    quotes:
+        - error
+        - double
+        - avoidEscape: true
+
+    semi:
+        - error
+        - always
+
+    no-unused-vars: off
+    array-bracket-spacing: off
+    no-undef: off

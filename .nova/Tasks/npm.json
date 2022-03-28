@@ -1,0 +1,18 @@
+{
+  "actions" : {
+    "build" : {
+      "enabled" : true,
+      "script" : "npm run build"
+    },
+    "clean" : {
+      "enabled" : true,
+      "script" : "npm run clean"
+    },
+    "run" : {
+      "enabled" : true,
+      "script" : "npm run watch"
+    }
+  },
+  "openLogOnRun" : "fail",
+  "persistent" : true
+}

@@ -1,0 +1,10 @@
+html, body {
+    font-size: 50px;
+    color: #000;
+    background-color: #fff;
+    display: flex;
+}
+
+html::before, body::before {
+    content: "hello, world (string)";
+}
