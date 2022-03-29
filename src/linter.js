@@ -61,6 +61,10 @@ async function execLinter(editor) {
             writer.close();
             process.start();
         });
+
+        // For debugging purposes
+        if ( nova.inDevMode() )
+            console.log(`${process.args.slice(1).map(i => i.replace(/"/g, "")).join(" ")}`);
     });
 
     return JSON.parse(await process);

@@ -26,10 +26,10 @@ function activate() {
     const provider = nova.assistants.registerIssueAssistant(
         [ "css", "scss", "sass", "less" ],
         new IssuesProvider(),
-        { even: "onChange" }
+        { event: "onChange" }
     );
-    composite.add(provider);
 
+    composite.add(provider);
     console.log("Stylelint extension for Nova has activated.");
 }
 

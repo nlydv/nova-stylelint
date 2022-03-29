@@ -1,0 +1,37 @@
+/* This file is for testing -config-standard-scss and -scss plugins
+ * are working out of the box when no stylelintrc is found and fallback
+ * is set by user to "standard" linting.
+ *
+ * move this into ~/test directory (or wherever there's not accessible
+ * stylelintrc config file available) and open with `nova ~/test`.
+ */
+
+@use "sass:meta";
+
+$test: (
+  1: "hello",
+  2: "world"
+);
+
+@function sass-function($param) {
+    @if meta.type-of($param)==number {
+        @return $param * 10;
+    }
+
+    @else {
+        @return $param + " (string)";
+    }
+}
+
+html, body {
+    font-size: sass-function(5) + px;
+    color: #000000;
+    background-color: #FFFFFF;
+
+    display: flex;
+
+    &::before {
+        font-size: 0;
+        content: sass-function("hello, world");
+    }
+}
