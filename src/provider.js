@@ -10,7 +10,10 @@ class IssuesProvider {
         const issues = [];
         const relPath = nova.workspace.relativizePath(editor.document.path);
 
-        const res = await execLinter(editor).catch(err => notify("stylelintError", err));
+        const res = await execLinter(editor).catch(err => {
+            console.error(err);
+            notify("stylelintError", err.message, "uncaught");
+        });
 
         for ( const i of res ) {
             for ( const w of i.warnings ) {

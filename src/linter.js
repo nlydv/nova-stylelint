@@ -1,5 +1,5 @@
 const batteries = require("./batteries");
-const { notify, getConfigs, rcWizard } = require("./util");
+const { notify, getConfigs, rcWizard, newPath } = require("./util");
 
 async function execLinter(editor) {
     const { document: doc } = editor;
@@ -16,23 +16,18 @@ async function execLinter(editor) {
     };
 
     // Prefered executable location via $PATH
-    let newPath = [ opt.env.PATH, batteries.dir ].join(":");
-    if ( prefs["exec.custom"] )
-        newPath = `${nova.path.dirname(prefs["exec.path"])}:${newPath}`;
-
-    opt.env.PATH = newPath;
+    opt.env.PATH = newPath();
 
     // Determine whether to auto-discover config, use specific config, or arbort
     const rc = await rcWizard(doc.path);
 
-    if ( ! rc )                              return;
-    else if ( rc !== "continue" )            opt.args.push("--config", rc);
-    else if ( rc.endsWith("standard.yaml") ) opt.args.push("--config-basedir", batteries.dir);
+    if ( ! rc )                    return;
+    else if ( rc === "standard")   opt.args.push("--config", batteries.standard);
+    else if ( rc === "custom" )    opt.args.push("--config", rc);
 
-    // Apply custom basedir argument if set in preferences
-    if ( prefs.basedir && ! opt.args.includes("--config-basedir") )
-        opt.args.push("--config-basedir", prefs.basedir);
-
+    // Use pre-packaged "batteries" as basedir if needed otherwise use user-configured dir
+    if ( prefs.basedir )           opt.args.push("--config-basedir", prefs.basedir);
+    else if ( rc === "batteries" ) opt.args.push("--config-basedir", batteries.dir);
 
     /* —————————————————————————————————————————————————————————————————— */
 

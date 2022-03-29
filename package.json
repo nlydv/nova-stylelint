@@ -21,7 +21,7 @@
     "main": "./src/main.js",
     "scripts": {
         "build": "npx rollup -c && cp -p *.md Stylelint.novaextension/",
-        "clean": "rm -r Stylelint.novaextension/{*.md,**/*.js} || exit 0",
+        "clean": "rm -r Stylelint.novaextension/{*.md,**/Scripts/*,Batteries/node_modules} || exit 0",
         "watch": "onchange -i \"src/*.js\" -- npm run build"
     },
     "devDependencies": {
