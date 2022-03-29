@@ -62,7 +62,7 @@ async function runProc(command, dir = nova.extension.path) {
         const proc = new Process(cmd, opt);
         proc.onStdout(line => stdout += line);
         proc.onStderr(line => stderr += line);
-        proc.onDidExit(status => status === 0 ? resolve(stdout) : reject(stderr));
+        proc.onDidExit(status => status === 0 ? resolve(stdout) : resolve(stderr));
 
         proc.start();
     });

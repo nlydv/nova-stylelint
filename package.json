@@ -1,7 +1,7 @@
 {
     "name": "nova-stylelint",
     "author": "Neel Yadav <mail@neelyadav.com>",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "Stylelint issue provider integration for the Nova code editor.",
     "license": "MIT",
     "keywords": [
@@ -21,7 +21,7 @@
     "main": "./src/main.js",
     "scripts": {
         "build": "npx rollup -c && cp -p *.md Stylelint.novaextension/",
-        "clean": "rm -r Stylelint.novaextension/{*.md,**/Scripts/*,Batteries/node_modules} || exit 0",
+        "clean": "rm -r Stylelint.novaextension/{*.md,Scripts/*.js,Batteries/node_modules} || exit 0",
         "watch": "onchange -i \"src/*.js\" -- npm run build"
     },
     "devDependencies": {

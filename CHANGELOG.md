@@ -1,6 +1,12 @@
 # Nova Stylelint Changelog
 I'll try to keep up with documenting changes here in this file.
 
+## 1.0.2
+`March 28, 2022`
+
+### Fixed
+- Hotfix
+
 ## 1.0.1
 `March 28, 2022`
 
