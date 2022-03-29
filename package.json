@@ -1,7 +1,7 @@
 {
     "name": "nova-stylelint",
     "author": "Neel Yadav <mail@neelyadav.com>",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Stylelint issue provider integration for the Nova code editor.",
     "license": "MIT",
     "keywords": [

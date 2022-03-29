@@ -3,7 +3,7 @@
 A [Stylelint](https://stylelint.io) extension for [Nova](https://nova.app), a new macOS-native code editor from [Panic](https://panic.com).
 
 ![](https://nova.app/images/en/dark/editor.png)
-<div style="text-align: center;"><sup>Stock image from Nova's extension template generator. Ironic in that it depicts linting a CSS file despite there not being any stylesheet linter available. It's till accurate for this extension though, so I'll keep it utill I take a nice screenshot.</sup></div>
+<div style="text-align: center;"><sup>Above is a stock image from Nova's extension template generator. Ironic in that it depicts linting a CSS file despite there not being any stylesheet linter available. It's still accurate for this extension though, so I'll keep it utill I take a nice screenshot.</sup></div>
 
 ## Overview
 
@@ -30,6 +30,7 @@ If you don't however, you can chose to fallback to using the `stylelint-config-s
 * Stress test weird edge cases.
 * Use extension for day-to-day editing.
 * Document build workflow.
+* Add `fix` command
 
 ### Contribute
 
