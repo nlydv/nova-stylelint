@@ -22,9 +22,12 @@
         "onLanguage:sass",
         "onLanguage:less",
         "onWorkspaceContains:.stylelintrc",
-        "onWorkspaceContains:.stylelintrc.*",
-        "onWorkspaceContains:stylelintrc",
-        "onWorkspaceContains:stylelintrc.*"
+        "onWorkspaceContains:.stylelintrc.js",
+        "onWorkspaceContains:.stylelintrc.json",
+        "onWorkspaceContains:.stylelintrc.yaml",
+        "onWorkspaceContains:.stylelintrc.yml",
+        "onWorkspaceContains:stylelintrc.config.js",
+        "onWorkspaceContains:stylelintrc.config.cjs"
     ],
 
     "config": "config.json",

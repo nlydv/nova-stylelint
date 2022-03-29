@@ -38,7 +38,7 @@
             [ "standard", "Lint with stylelint-config-standard" ],
             [ "custom", "Lint with custom config file set below" ]
         ],
-        "default": "ignore"
+        "default": "none"
     },
     {
         "key": "com.neelyadav.Stylelint.fallback.custom",

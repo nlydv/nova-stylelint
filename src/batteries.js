@@ -3,6 +3,7 @@ const { runProc } = require("./util");
 const dir = nova.path.join(nova.extension.path, "Batteries");
 const bin = nova.path.join(dir, "node_modules", ".bin");
 const stylelintPath = `${bin}/stylelint`;
+const standard = `${dir}/standard.yaml`;
 
 const install = async () => await runProc("npm install --production", dir).catch(err => console.error(err));
 
@@ -12,5 +13,6 @@ module.exports = {
     dir,
     bin,
     install,
-    areInstalled
+    areInstalled,
+    standard
 };

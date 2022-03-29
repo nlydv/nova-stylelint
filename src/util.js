@@ -1,7 +1,9 @@
-function notify(id, msg) {
+const batteries = require("./batteries");
+
+function notify(id, msg, error = null) {
     const notification = new NotificationRequest(id);
     notification.title = "Stylelint";
-    notification.body = msg;
+    notification.body = error ? `ERROR (${error})\n\n${msg}` : msg;
     nova.notifications.add(notification);
 }
 
@@ -24,24 +26,38 @@ function getConfigs() {
         conf[key] = val;
     }
 
-
     return conf;
 }
 
-async function runProc(command, dir = null) {
+function newPath() {
+    const prefs = getConfigs();
+    const env = nova.environment.PATH;
+
+    let newPath = [ env, batteries.dir ];
+
+    if ( prefs["exec.custom"] )
+        newPath = [ nova.path.dirname(prefs["exec.path"]) ].concat(newPath);
+
+    return newPath.join(":");
+}
+
+async function runProc(command, dir = nova.extension.path) {
     command = command.split(" ");
     const [ cmd, args ] = [ command.shift(), command ];
 
     const opt = {
         args: args,
-        cwd: dir ?? nova.extension.path,
+        cwd: dir,
         env: nova.environment,
         stdio: "pipe",
         shell: true
     };
 
+    opt.env.PATH = newPath();
+
     const proc = new Promise((resolve, reject) => {
-        let stdout, stderr;
+        let stdout = "";
+        let stderr = "";
 
         const proc = new Process(cmd, opt);
         proc.onStdout(line => stdout += line);
@@ -64,8 +80,29 @@ async function resolveConfig(file) {
             shell: true
         };
 
+        opt.env.PATH = newPath();
+
         const process = new Process("stylelint", opt);
-        process.onDidExit(status => status === 0 ? resolve(true) : resolve(false));
+
+        let err = "";
+        process.onStderr(line => err += line);
+        process.onDidExit(async status => {
+            if ( status === 0 ) resolve(true);
+
+            else if ( err.includes("configBasedir") ) {
+                let cmd = `${process.args.slice(1).map(i => i.replace(/"/g, "")).join(" ")}`;
+                cmd += ` --config-basedir ${batteries.dir}`;
+
+                await runProc(cmd, process.cwd)
+                    .then(out => resolve("batteries"))
+                    .catch(err => {
+                        console.error(err);
+                        resolve(err.split("\n")[0]);
+                    });
+            }
+
+            else resolve(false);
+        });
 
         process.start();
     });
@@ -80,35 +117,47 @@ async function rcWizard(file) {
     if ( ! hasRc ) {
         switch (conf["fallback.behavior"]) {
             case "none":
-                notify("noStylelintrc", "Error:\nNo available stylelint config found.");
+                notify("noStylelintrc", "No available stylelint config found.", "stylelintrc");
                 return null;
 
-            case null:
             case "ignore":
                 return null;
 
             case "standard":
-                return `${nova.extension.path}/Batteries/standard.yaml`;
+                return "standard";
 
             case "custom":
                 if ( nova.fs.access(conf["fallback.custom"], nova.fs.F_OK) ) {
                     return conf["fallback.custom"];
                 } else {
-                    notify("nonExistentRc", "Error:\nThe configured fallback stylelintrc config path does not exist.");
+                    notify("nonExistentRc", "The configured fallback stylelintrc config path does not exist.", "config");
                     return null;
                 }
 
             default:
-                throw new Error("Unforseen outcome in conditional logic\nPlease open an issue at github.com/nlydv/nova-stylelint");
+                throw new Error("Unforseen outcome in conditional logic.\n\nPlease open an issue at:\ngithub.com/nlydv/nova-stylelint");
         }
     }
 
-    return "continue";
+    else if ( hasRc === "batteries" ) {
+        return "batteries";
+    }
+
+    else if ( hasRc.toString().includes("configBasedir") ) {
+        const msg = hasRc.substring(7).split(".").map(i => i.trim()).join("\n");
+        notify("basedir", msg, "stylelintrc");
+        return null;
+    }
+
+    else {
+        return "continue";
+    }
 }
 
 module.exports = {
     notify,
     getConfigs,
     rcWizard,
-    runProc
+    runProc,
+    newPath
 };
