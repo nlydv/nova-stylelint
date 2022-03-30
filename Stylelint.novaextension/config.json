@@ -57,7 +57,7 @@
 
     {
         "key": "com.neelyadav.Stylelint.basedir",
-        "title": "Config Base Directory",
+        "title": "Config base directory",
         "description": "Absolute path to a directory from which to find plugins and extend rules named in Stylelint config.\n(--config-basedir)",
         "type": "path",
         "placeholder": "~/Developer",

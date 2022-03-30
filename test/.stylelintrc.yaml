@@ -131,7 +131,9 @@ overrides:
       - "/**/*.scss"
       - "/**/*.sass"
     extends: stylelint-config-standard-scss
-    plugins: stylelint-scss
+    plugins:
+        - stylelint-scss
+        - stylelint-less
     rules:
         comment-no-empty:                   null
         function-name-case:                 null
@@ -167,8 +169,8 @@ overrides:
         scss/at-else-closing-brace-space-after:      null
         scss/at-else-empty-line-before:              null
         scss/dollar-variable-colon-space-after:      at-least-one-space
-        scss/at-mixin-pattern:                       '[-_]?[a-z][a-zA-Z0-9]+'
-        scss/at-function-pattern:                    '[-_]?[a-z][a-zA-Z0-9]+'
+        scss/at-mixin-pattern:                       ^([a-z][a-z0-9]*)(-[a-z0-9]+)*$
+        scss/at-function-pattern:                    ^[a-z][a-zA-Z0-9]+$
 
 # ————————————————————————————————————————————————————————————————————————— #
 
