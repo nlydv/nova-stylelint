@@ -62,7 +62,7 @@ async function runProc(command, dir = nova.extension.path) {
         const proc = new Process(cmd, opt);
         proc.onStdout(line => stdout += line);
         proc.onStderr(line => stderr += line);
-        proc.onDidExit(status => status === 0 ? resolve(stdout) : resolve(stderr));
+        proc.onDidExit(status => status === 0 ? resolve(stdout) : reject(stderr));
 
         proc.start();
     });
@@ -87,16 +87,18 @@ async function resolveConfig(file) {
         let err = "";
         process.onStderr(line => err += line);
         process.onDidExit(async status => {
+            // stylelint finds rc AND is able to lint properly
             if ( status === 0 ) resolve(true);
 
+            // stylelint finds rc BUT cannot resolve configured plugin/extend packages
             else if ( err.includes("configBasedir") ) {
-                let cmd = `${process.args.slice(1).map(i => i.replace(/"/g, "")).join(" ")}`;
-                cmd += ` --config-basedir ${batteries.dir}`;
+                let cmd = process.args[1].split('" "').join(" ").slice(1, -1); // retry exact same command again, but with...
+                cmd += ` --config-basedir ${batteries.dir}`;                   // "batteries included" folder as basedir to see if we have what it needs
 
                 await runProc(cmd, process.cwd)
-                    .then(out => resolve("batteries"))
-                    .catch(err => {
-                        console.error(err);
+                    .then(out => resolve("batteries")) // if we do have the batteries stylint wants, let downstream proc know to use them
+                    .catch(err => {                    // otherwise abort and tell downstream to throw error at user
+                        console.warn(err);
                         resolve(err.split("\n")[0]);
                     });
             }
