@@ -33,6 +33,21 @@ rules:
         - error
         - always
 
+    no-promise-executor-return: warn
+    no-async-promise-executor: warn
+
+    arrow-parens:
+        - warn
+        - as-needed
+    array-element-newline:
+        - warn
+        - consistent
+    comma-dangle:
+        - warn
+        - never
+    computed-property-spacing:
+        - error
+        - never
+
     no-unused-vars: off
     array-bracket-spacing: off
-    no-undef: off

@@ -23,7 +23,7 @@
 
     { "type": "section" },
     {
-        "title": "Fallback Config",
+        "title": "Configuration",
         "type": "section"
     },
 
@@ -42,27 +42,27 @@
     },
     {
         "key": "com.neelyadav.Stylelint.fallback.custom",
-        "title": "Custom fallback configuration",
+        "title": "Custom fallback config",
         "description": "Absolute path to a fallback stylelintrc config file.\nCustom fallback behavior only.",
         "type": "path",
         "placeholder": "~/Developer/.stylelintrc",
         "default": null
+    },
+    {
+        "key": "com.neelyadav.Stylelint.basedir",
+        "title": "Config base directory",
+        "description": "Absolute path to a directory from which to find plugins and extend rules named in Stylelint config.\n(--config-basedir)",
+        "link": "https://stylelint.io/user-guide/usage/cli#--config-basedir",
+        "type": "path",
+        "placeholder": "~/Developer",
+        "default": null,
+        "allowFiles": false,
+        "allowFolders": true
     },
 
     { "type": "section" },
     {
         "title": "Other Options",
         "type": "section"
-    },
-
-    {
-        "key": "com.neelyadav.Stylelint.basedir",
-        "title": "Config base directory",
-        "description": "Absolute path to a directory from which to find plugins and extend rules named in Stylelint config.\n(--config-basedir)",
-        "type": "path",
-        "placeholder": "~/Developer",
-        "default": null,
-        "allowFiles": false,
-        "allowFolders": true
     }
 ]
