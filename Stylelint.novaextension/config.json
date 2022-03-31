@@ -48,6 +48,13 @@
         "placeholder": "~/Developer/.stylelintrc",
         "default": null
     },
+
+    { "type": "section" },
+    {
+        "title": "Other Options",
+        "type": "section"
+    },
+
     {
         "key": "com.neelyadav.Stylelint.basedir",
         "title": "Config base directory",
@@ -58,11 +65,5 @@
         "default": null,
         "allowFiles": false,
         "allowFolders": true
-    },
-
-    { "type": "section" },
-    {
-        "title": "Other Options",
-        "type": "section"
     }
 ]

@@ -29,6 +29,8 @@ rules:
 
     property-no-unknown:
       - true
+      - severity:
+          - warn
       - ignoreProperties:
           - font-named-instance
 
@@ -81,7 +83,10 @@ rules:
     selector-list-comma-space-before:          never
     selector-list-comma-space-after:           always-single-line
     selector-list-comma-newline-before:        never-multi-line
-    selector-list-comma-newline-after:         always-multi-line
+    selector-list-comma-newline-after:
+      - always-multi-line
+      - severity:
+         - warn
     selector-combinator-space-before:          always
     selector-combinator-space-after:           always
 
@@ -130,10 +135,14 @@ overrides:
   - files:
       - "/**/*.scss"
       - "/**/*.sass"
-    extends: stylelint-config-standard-scss
+    extends:
+        - stylelint-config-recommended
+        - stylelint-config-standard
+        - stylelint-config-recommended-scss
+        - stylelint-config-standard-scss
     plugins:
         - stylelint-scss
-        - stylelint-less
+        # - stylelint-less
     rules:
         comment-no-empty:                   null
         function-name-case:                 null
