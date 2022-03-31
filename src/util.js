@@ -148,7 +148,7 @@ async function rcWizard(file) {
 
             case "custom":
                 if ( nova.fs.access(prefs.fallback.custom, nova.fs.F_OK) ) {
-                    return prefs.fallback.custom;
+                    return "custom";
                 } else {
                     notify("nonExistentRc", "The configured fallback stylelintrc config path does not exist.", "config");
                     return null;

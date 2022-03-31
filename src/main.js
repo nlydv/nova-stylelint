@@ -16,9 +16,9 @@ const batteries = require("./batteries");
 
 const composite = new CompositeDisposable();
 
-function activate() {
+async function activate() {
     if ( ! batteries.areInstalled() ) {
-        batteries.install()
+        await batteries.install()
             .then(out => console.log(out))
             .catch(err => console.error(err));
     }

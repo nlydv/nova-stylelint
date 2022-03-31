@@ -22,7 +22,7 @@ async function execLinter(editor) {
     const rc = await rcWizard(doc.path);
     if ( ! rc )                    return;
     else if ( rc === "standard")   opt.args.push("--config", batteries.standard);
-    else if ( rc === "custom" )    opt.args.push("--config", rc);
+    else if ( rc === "custom" )    opt.args.push("--config", prefs.fallback.custom);
 
     // Use pre-packaged "batteries" as basedir if needed otherwise use user-configured dir
     if ( prefs.basedir )           opt.args.push("--config-basedir", prefs.basedir);
