@@ -2,18 +2,20 @@
  * are working out of the box when no stylelintrc is found and fallback
  * is set by user to "standard" linting.
  *
- * move this into ~/test directory (or wherever there's not accessible
+ * move out into ~/test directory (or wherever there's not accessible
  * stylelintrc config file available) and open with `nova ~/test`.
  */
 
 @use "sass:meta";
 
 $test: (
-  1: "hello",
-  2: "world"
+    1: "hello",
+    2: "world"
 );
 
+// function names should be lowerCamelCase
 @function sass-function($param) {
+    // spaces required before and after '=='
     @if meta.type-of($param)==number {
         @return $param * 10;
     }
@@ -23,12 +25,21 @@ $test: (
     }
 }
 
+// mixin names should be kebab-case
+@mixin mixinName() {
+    box-sizing: border-box;
+}
+
 html, body {
+    // argumentless mixin shouldn't have '()'
+    @include mixinName();
+
     font-size: sass-function(5) + px;
     color: #000000;
     background-color: #FFFFFF;
 
-    display: flex;
+    // 4 space indent instead of 8;
+        display: flex;
 
     &::before {
         font-size: 0;

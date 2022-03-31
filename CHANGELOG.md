@@ -1,6 +1,18 @@
 # Nova Stylelint Changelog
 I'll try to keep up with documenting changes here in this file.
 
+## 1.0.3
+`March 30, 2022`
+
+### Fixed
+- Bug preventing custom fallback config from being used
+- Properly abort & pass relevant config problems to user instead of erroring out too early
+
+### Changed
+- Updated README & added preview image
+- Nicer extension icon image
+- Refactoring
+
 ## 1.0.2
 `March 28, 2022`
 

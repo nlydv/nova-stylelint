@@ -1,12 +1,12 @@
 {
     "name": "nova-stylelint",
-    "version": "1.0.0",
+    "version": "1.0.3",
     "lockfileVersion": 2,
     "requires": true,
     "packages": {
         "": {
             "name": "nova-stylelint",
-            "version": "1.0.0",
+            "version": "1.0.3",
             "license": "MIT",
             "dependencies": {
                 "nova-npm-executable": "^0.1.2"
