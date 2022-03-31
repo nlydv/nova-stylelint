@@ -2,7 +2,7 @@
     "name": "Stylelint",
     "organization": "Neel Yadav",
     "identifier": "com.neelyadav.stylelint",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "Stylelint issue provider integration for the Nova code editor.",
     "license": "MIT",
     "categories": [

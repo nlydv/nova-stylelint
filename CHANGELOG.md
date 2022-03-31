@@ -1,6 +1,9 @@
 # Nova Stylelint Changelog
 I'll try to keep up with documenting changes here in this file.
 
+## 1.0.4
+Bump to fix in-app icon display
+
 ## 1.0.3
 `March 30, 2022`
 

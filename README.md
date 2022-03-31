@@ -2,7 +2,7 @@
 
 A [Stylelint](https://stylelint.io) extension for [Nova](https://nova.app), a new macOS-native code editor from [Panic](https://panic.com).
 
-![](preview.png)
+![](https://raw.githubusercontent.com/nlydv/nova-stylelint/master/preview.png)
 
 ## Overview
 
