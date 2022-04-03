@@ -1,19 +1,21 @@
 const execLinter = require("./linter");
-const { notify } = require("./util");
+const { alert, notify } = require("./util");
 
 class IssuesProvider {
     constructor() {
-
+        this.exec = (editor, fix = false) => {
+            return execLinter(editor, fix).catch(err => {
+                console.error(err);
+                alert(`Uncaught Error:\n\n${err.message}`);
+            });
+        };
     }
 
     async provideIssues(editor) {
         const issues = [];
         const relPath = nova.workspace.relativizePath(editor.document.path);
 
-        const res = await execLinter(editor).catch(err => {
-            console.error(err);
-            notify("stylelintError", err.message, "uncaught");
-        });
+        const res = await this.exec(editor);
 
         for ( const i of res ) {
             for ( const w of i.warnings ) {
@@ -30,6 +32,18 @@ class IssuesProvider {
         }
 
         return issues;
+    }
+
+    async fixIssues(editor) {
+        const { document: doc } = editor;
+
+        const res = await this.exec(editor, true).catch(err => null);
+
+        if ( res ) {
+            editor.edit(editorEdit => {
+                editorEdit.replace(new Range(0, editor.document.length), res);
+            });
+        }
     }
 }
 

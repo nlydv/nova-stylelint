@@ -2,7 +2,7 @@ const batteries = require("./batteries");
 const { notify, getPrefs, newPath } = require("./util");
 const { rcWizard } = require("./wizard");
 
-async function execLinter(editor) {
+async function execLinter(editor, fix = false) {
     const { document: doc } = editor;
     const prefs = getPrefs();
 
@@ -32,6 +32,9 @@ async function execLinter(editor) {
     // Use pre-packaged "batteries" as basedir if needed otherwise use user-configured dir
     if ( prefs.basedir )           opt.args.push("--config-basedir", prefs.basedir);
     else if ( rc === "batteries" ) opt.args.push("--config-basedir", batteries.dir);
+
+    // When running fix command
+    if ( fix ) opt.args.push("--fix");
 
     /* —————————————————————————————————————————————————————————————————— */
 
@@ -66,7 +69,8 @@ async function execLinter(editor) {
             console.log(`From: ${process.cwd}\nCmd:  ${process.args.slice(1).map(i => i.replace(/"/g, "")).join(" ")}`);
     });
 
-    return JSON.parse(await process);
+    if ( fix ) return await process;
+    else       return JSON.parse(await process);
 }
 
 /* —————————————————————————————————————————————————————————————————— */

@@ -23,11 +23,29 @@ async function activate() {
             .catch(err => console.error(err));
     }
 
+    const issuesProvider = new IssuesProvider;
+
     const provider = nova.assistants.registerIssueAssistant(
         [ "css", "scss", "sass", "less" ],
-        new IssuesProvider(),
+        issuesProvider,
         { event: "onChange" }
     );
+
+    nova.commands.register("lint", editor => {
+        if ( ! TextEditor.isTextEditor(editor) )
+            editor = nova.workspace.activeTextEditor;
+
+        const lintCmd = issuesProvider.provideIssues(editor);
+        composite.add(lintCmd);
+    });
+
+    nova.commands.register("lintFix", editor => {
+        if ( ! TextEditor.isTextEditor(editor) )
+            editor = nova.workspace.activeTextEditor;
+
+        const fixCmd = issuesProvider.fixIssues(editor);
+        composite.add(fixCmd);
+    });
 
     composite.add(provider);
     console.log("Stylelint extension for Nova has activated.");
