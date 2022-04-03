@@ -1,24 +1,6 @@
 {
-    "name": "nova-stylelint",
-    "author": "Neel Yadav <mail@neelyadav.com>",
-    "version": "1.0.4",
-    "description": "Stylelint issue provider integration for the Nova code editor.",
-    "license": "MIT",
-    "keywords": [
-        "nova-editor",
-        "stylelint",
-        "plugin",
-        "commands",
-        "formatters",
-        "issues"
-    ],
-    "homepage": "https://github.com/nlydv/nova-stylelint",
-    "bugs": "https://github.com/nlydv/nova-stylelint/issues",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/nlydv/nova-stylelint.git"
-    },
-    "main": "./src/main.dist.js",
+    "name": "nova-stylelint-batteries",
+    "private": true,
     "dependencies": {
         "stylelint": "^14.6.1",
         "stylelint-config-standard": "^25.0.0",

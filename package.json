@@ -1,8 +1,9 @@
 {
     "name": "nova-stylelint",
     "author": "Neel Yadav <mail@neelyadav.com>",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "description": "Stylelint issue provider integration for the Nova code editor.",
+    "private": true,
     "license": "MIT",
     "keywords": [
         "nova-editor",
@@ -28,12 +29,10 @@
         "@rollup/plugin-commonjs": "^11.0.1",
         "@rollup/plugin-json": "^4.1.0",
         "@rollup/plugin-node-resolve": "^7.0.0",
+        "@types/nova-editor-node": "^4.1.4",
         "eslint": "^8.11.0",
         "eslint-plugin-nova": "^1.7.0",
         "onchange": "^7.1.0",
         "rollup": "^1.30.1"
-    },
-    "dependencies": {
-        "nova-npm-executable": "^0.1.2"
     }
 }
