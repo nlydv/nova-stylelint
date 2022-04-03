@@ -1,12 +1,12 @@
 const { runProc } = require("./util");
 
-let cache         = `${nova.extension.globalStoragePath}/Cache/`;
+let cache         = nova.path.join(nova.extension.globalStoragePath, "/Cache/");
 let dir           = nova.path.join(nova.extension.path, "Batteries");
 let bin           = nova.path.join(dir, "node_modules", ".bin");
-let standard      = `${dir}/standard.yaml`;
-let stylelintPath = `${bin}/stylelint`;
+let standard      = nova.path.join(dir, "standard.yaml");
+let stylelintPath = nova.path.join(bin, "stylelint");
 
-const install = async () => await runProc("npm install --production", dir).catch(err => console.error(err));
+const install = async () => await runProc("/usr/bin/env npm ci", dir).catch(err => console.error(err));
 const areInstalled = () => nova.fs.access(stylelintPath, nova.fs.X_OK);
 
 module.exports = {
@@ -15,5 +15,6 @@ module.exports = {
     install,
     areInstalled,
     standard,
-    cache
+    cache,
+    stylelintPath
 };

@@ -1,5 +1,6 @@
 const batteries = require("./batteries");
-const { notify, getPrefs, rcWizard, newPath } = require("./util");
+const { notify, getPrefs, newPath } = require("./util");
+const { rcWizard } = require("./wizard");
 
 async function execLinter(editor) {
     const { document: doc } = editor;
@@ -15,8 +16,12 @@ async function execLinter(editor) {
         shell: "/bin/bash"
     };
 
-    // Prefered executable location via $PATH
+    // Prefered executable location via $PATH unless `exec.custom` is on
     opt.env.PATH = newPath();
+    let stylelint = ( prefs.exec.custom
+        ? (prefs.exec.path ?? "stylelint")
+        : "stylelint"
+    );
 
     // Determine whether to auto-discover config, use specific config, or arbort
     const rc = await rcWizard(doc.path);
@@ -34,7 +39,7 @@ async function execLinter(editor) {
         let error = "";
         let output = "";
 
-        const process = new Process("stylelint", opt);
+        const process = new Process(stylelint, opt);
 
         process.onStderr(line => error += line);
         process.onStdout(line => output += line);
@@ -58,7 +63,7 @@ async function execLinter(editor) {
 
         // For debugging purposes
         if ( nova.inDevMode() )
-            console.log(`${process.args.slice(1).map(i => i.replace(/"/g, "")).join(" ")}`);
+            console.log(`From: ${process.cwd}\nCmd:  ${process.args.slice(1).map(i => i.replace(/"/g, "")).join(" ")}`);
     });
 
     return JSON.parse(await process);
