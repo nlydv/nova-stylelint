@@ -1,9 +1,21 @@
 const batteries = require("./batteries");
 
-function notify(id, msg, error = null) {
+function alert(message, settings = false) {
+    if ( settings ) {
+        nova.workspace.showActionPanel(
+            message,
+            { buttons: [ "Ok", "Settings" ] },
+            buttonIndex => buttonIndex === 1 ? nova.openConfig() : null
+        );
+    } else {
+        nova.workspace.showErrorMessage(message);
+    }
+}
+
+function notify(id, msg, type = null) {
     const notification = new NotificationRequest(id);
     notification.title = "Stylelint";
-    notification.body = error ? `ERROR (${error})\n\n${msg}` : msg;
+    notification.body = type ? `Warning ${type ? `(${type})` : ""}\n\n${msg}` : msg;
     nova.notifications.add(notification);
 }
 
@@ -90,6 +102,7 @@ async function runProc(command, dir = null) {
 }
 
 module.exports = {
+    alert,
     notify,
     getPrefs,
     runProc,
