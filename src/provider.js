@@ -6,15 +6,13 @@ class IssuesProvider {
         this.exec = (editor, fix = false) => {
             return execLinter(editor, fix).catch(err => {
                 console.error(err);
-                alert(`Uncaught Error:\n\n${err.message}`);
+                alert(`Uncaught Error:\n\n${err}`);
             });
         };
     }
 
     async provideIssues(editor) {
         const issues = [];
-        const relPath = nova.workspace.relativizePath(editor.document.path);
-
         const res = await this.exec(editor);
 
         for ( const i of res ) {

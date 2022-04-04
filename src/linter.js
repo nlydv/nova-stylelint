@@ -1,5 +1,5 @@
 const batteries = require("./batteries");
-const { notify, getPrefs, newPath } = require("./util");
+const { getPrefs, newPath } = require("./util");
 const { rcWizard } = require("./wizard");
 
 async function execLinter(editor, fix = false) {
@@ -16,12 +16,8 @@ async function execLinter(editor, fix = false) {
         shell: "/bin/bash"
     };
 
-    // Prefered executable location via $PATH unless `exec.custom` is on
+    // Prefered executable location via $PATH (unless `exec.custom` is on)
     opt.env.PATH = newPath();
-    let stylelint = ( prefs.exec.custom
-        ? (prefs.exec.path ?? "stylelint")
-        : "stylelint"
-    );
 
     // Determine whether to auto-discover config, use specific config, or arbort
     const rc = await rcWizard(doc.path);
@@ -42,7 +38,7 @@ async function execLinter(editor, fix = false) {
         let error = "";
         let output = "";
 
-        const process = new Process(stylelint, opt);
+        const process = new Process(prefs.stylelint, opt);
 
         process.onStderr(line => error += line);
         process.onStdout(line => output += line);

@@ -1,9 +1,9 @@
 const batteries = require("./batteries");
-const { getPrefs, newPath, runProc, alert, notify } = require("./util");
+const { getPrefs, relPath, newPath, runProc, alert, notify } = require("./util");
 
-function resolveConfig(file, exec = "stylelint") {
+function resolveConfig(file) {
     const config = new Promise((resolve, reject) => {
-        const { basedir } = getPrefs();
+        const { basedir, stylelint } = getPrefs();
 
         const opt = {
             args: [ "--print-config", file ],
@@ -18,7 +18,7 @@ function resolveConfig(file, exec = "stylelint") {
         if ( basedir )
             opt.args.push("--config-basedir", basedir);
 
-        const process = new Process(exec, opt);
+        const process = new Process(stylelint, opt);
 
         // For debugging purposes
         if ( nova.inDevMode() )
@@ -42,15 +42,14 @@ function resolveConfig(file, exec = "stylelint") {
                     return;
                 }
 
-                let cmd = process.args[1].split('" "').join(" ").slice(1, -1); // retry exact same command again, but with...
-                cmd += ` --config-basedir ${batteries.dir}`;                   // "batteries included" folder as basedir to see if we have what it needs
+                // retry exact same command again, but with "batteries included" folder as basedir
+                let cmd = process.args[1] + ` "--config-basedir" "${batteries.dir}"`;
+
+                // For debugging purposes
+                if ( nova.inDevMode() )
+                    console.log(`From: ${process.cwd}\nCmd:  ${cmd}`);
 
                 runProc(cmd, process.cwd)
-                    .then(() => {
-                        // For debugging purposes
-                        if ( nova.inDevMode() )
-                            console.log(`From: ${process.cwd}\nCmd:  ${cmd}`);
-                    })
                     .then(out => resolve("batteries")) // if we do have the batteries stylint wants, let downstream proc know to use them
                     .catch(err => {
                         console.warn(err);
@@ -72,24 +71,25 @@ function resolveConfig(file, exec = "stylelint") {
 
 async function rcWizard(file) {
     const prefs = getPrefs();
-    const exec = (prefs.exec.custom
-        ? (prefs.exec.path ?? "stylelint")
-        : "stylelint"
-    );
+    const hasRc = await resolveConfig(file);
 
-    const hasRc = await resolveConfig(file, exec);
-
-    if ( !hasRc ) {
-        const message = "No available stylelint config found";
+    if ( ! hasRc ) {
+        const message = `No available stylelintrc config file found\n\n${relPath(file)}`;
 
         switch (prefs.fallback.behavior) {
             case "none": // back compat (v1.0.4)
             case "loud":
+                alert(message);
+                // Commented out in favor of alert specifically for error messages. Look into
+                // switching back to "showActionPanel" later to enable additional alert button
+                // to allow user to ignore file by adding it to a `.stylelintignore`-type pref.
+                /*
                 nova.workspace.showActionPanel(
                     message,
                     { buttons: [ "Ok", "Don't show again" ] },
                     buttonIndex => buttonIndex === 1 ? nova.config.set("com.neelyadav.Stylelint.fallback.behavior", "silent") : null
                 );
+                */
                 return null;
 
             case "quiet":
@@ -107,7 +107,6 @@ async function rcWizard(file) {
                 if ( nova.fs.access(prefs.fallback.custom, nova.fs.F_OK) ) {
                     return "custom";
                 } else {
-                    // notify("nonExistentRc", "Fallback config path does not exist", "config");
                     alert(msg.enoent("Fallback config", prefs.fallback.custom), true);
                     return null;
                 }
@@ -126,12 +125,6 @@ async function rcWizard(file) {
         let message = hasRc.substring(7).split(".")[0] + "\n";
         message += ( prefs.basedir ? msg.basedirPkg(prefs) : msg.naivePkg );
 
-        // notify("basedir", msg, "stylelintrc");
-        // nova.workspace.showActionPanel(
-        //     message,
-        //     { buttons: [ "Ok", "Settings" ] },
-        //     buttonIndex => buttonIndex === 1 ? nova.openConfig() : null
-        // );
         alert(message, true);
 
         return null;
@@ -154,15 +147,15 @@ const msg = {
     enoent: (type, path) => `${type} path does not exist:\n\n"${path}"`,
 
     basedirPkg: prefs => `
-This package could not be found in your config-basedir:
+We tried looking in your Config Basedir:
 "${prefs.basedir}"
 
-Double check that the package is installed at that location.
-Alternatively, you can try installing the package globally.`,
+Double check that the package is installed there.
+Alternatively, try installing the package globally.`,
 
     naivePkg: `
-Try installing the package globally.
-Alternatively, set a config-basedir path in the settings.`
+Try installing the missing package globally.
+Alternatively, set a Config Basedir in settings.`
 };
 
 module.exports = { rcWizard };

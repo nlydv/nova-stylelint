@@ -4,7 +4,7 @@ function alert(message, settings = false) {
     if ( settings ) {
         nova.workspace.showActionPanel(
             message,
-            { buttons: [ "Ok", "Settings" ] },
+            { buttons: [ "OK", "Settings" ] },
             buttonIndex => buttonIndex === 1 ? nova.openConfig() : null
         );
     } else {
@@ -39,14 +39,21 @@ function getPrefs() {
     prefs.cache.on          = val("cache.on");
     prefs.cache.path        = val("cache.path");
 
+    prefs.stylelint =
+        prefs.exec.custom
+            ? ( prefs.exec.path ?? "stylelint" )
+            : "stylelint";
+
     return prefs;
 }
+
+const relPath = path => nova.workspace.relativizePath(path);
 
 // workaround to get open workspace root, if any, since `nova.workspace.path` doesn't seem to work
 function workspacePath() {
     try {
         const active = nova.workspace.activeTextEditor?.document.path;
-        if ( active ) return active.split(nova.workspace.relativizePath(active))[0].slice(0, -1);
+        if ( active ) return active.split(relPath(active))[0].slice(0, -1);
         else return null;
     } catch (e) {
         return null;
@@ -55,19 +62,23 @@ function workspacePath() {
 
 function newPath() {
     const prefs = getPrefs();
-    const workspace = workspacePath();
-    const bin = "/node_modules/.bin";
     const env = nova.environment.PATH;
+
+    const workspace      = workspacePath();
+    const localBin       = nova.path.join(workspace, "node_modules/.bin");
+    const localLinter    = nova.path.join(localBin, "stylelint");
+    const hasLocalLinter = nova.fs.access(localLinter, nova.fs.X_OK);
 
     let newPath = [];
 
-    if ( workspace && nova.fs.access(`${workspace}${bin}/stylelint`, nova.fs.X_OK) )
-        newPath.push(`${workspace}${bin}`);
+    if ( workspace && localLinter )
+        newPath = [ localBin, env, batteries.dir ];
+    else
+        newPath = [ env, batteries.dir ];
 
-    newPath.push(env, batteries.dir);
-
-    if ( prefs.exec.custom )
-        newPath = [ nova.path.dirname(prefs.exec.path) ].concat(newPath);
+    // newPath.push(env, batteries.dir);
+    // if ( prefs.exec.custom )
+    //     newPath = [ nova.path.dirname(prefs.exec.path) ].concat(newPath);
 
     return newPath.join(":");
 }
@@ -81,7 +92,7 @@ async function runProc(command, dir = null) {
         cwd: dir ?? nova.extension.path,
         env: nova.environment,
         stdio: "pipe",
-        shell: true
+        shell: "/bin/bash"
     };
 
     opt.env.PATH = newPath();
@@ -106,5 +117,7 @@ module.exports = {
     notify,
     getPrefs,
     runProc,
+    relPath,
+    workspacePath,
     newPath
 };
