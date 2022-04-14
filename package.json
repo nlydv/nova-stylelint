@@ -1,8 +1,8 @@
 {
     "name": "nova-stylelint",
     "author": "Neel Yadav <mail@neelyadav.com>",
-    "version": "1.0.5",
-    "description": "Stylelint issue provider integration for the Nova code editor.",
+    "version": "1.0.4",
+    "description": "Stylelint extension for Nova, a new macOS-native code editor from Panic.",
     "private": true,
     "license": "MIT",
     "keywords": [
@@ -21,8 +21,9 @@
     },
     "main": "./src/main.js",
     "scripts": {
-        "build": "npx rollup -c && cp -p *.md Stylelint.novaextension/",
+        "build": "npx rollup -c && cp -p *.md Stylelint.novaextension/ && npm shrinkwrap && cd Stylelint.novaextension/Batteries && npm shrinkwrap",
         "clean": "rm -r Stylelint.novaextension/{*.md,Scripts/*.js,Batteries/node_modules} || exit 0",
+        "release": "source .env && npx release-it",
         "watch": "onchange -i \"src/*.js\" -- npm run build"
     },
     "devDependencies": {
@@ -33,6 +34,7 @@
         "eslint": "^8.11.0",
         "eslint-plugin-nova": "^1.7.0",
         "onchange": "^7.1.0",
+        "release-it": "^14.14.2",
         "rollup": "^1.30.1"
     }
 }

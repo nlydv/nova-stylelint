@@ -28,9 +28,7 @@ function resolveConfig(file) {
         process.onStderr(line => err += line);
         process.onDidExit(status => {
             // stylelint finds rc AND is able to lint properly
-            if ( status === 0 )
-                resolve(true);
-
+            if ( status === 0 ) resolve(true);
 
             // stylelint finds rc BUT cannot resolve configured plugin/extend packages
             else if ( err.includes("configBasedir") ) {
@@ -57,10 +55,8 @@ function resolveConfig(file) {
                     });
             }
 
-
             // stylelint does NOT find rc, trigger fallback switch
-            else
-                resolve(false);
+            else resolve(false);
         });
 
         process.start();
@@ -107,12 +103,13 @@ async function rcWizard(file) {
                 if ( nova.fs.access(prefs.fallback.custom, nova.fs.F_OK) ) {
                     return "custom";
                 } else {
-                    alert(msg.enoent("Fallback config", prefs.fallback.custom), true);
+                    alert(msg.enoent("Fallback config", prefs.fallback.custom), "Settings");
                     return null;
                 }
 
             default:
-                throw new Error("Unforseen outcome in conditional logic.\n\nPlease open an issue at:\nhttps://github.com/nlydv/nova-stylelint");
+                // @TODO create custom Error class for standardized catching/handling in upstream code
+                throw new Error("Unforseen outcome in conditional logic\n\nPlease open an issue report in the GitHub repository");
         }
     }
 
@@ -125,7 +122,7 @@ async function rcWizard(file) {
         let message = hasRc.substring(7).split(".")[0] + "\n";
         message += ( prefs.basedir ? msg.basedirPkg(prefs) : msg.naivePkg );
 
-        alert(message, true);
+        alert(message, "Settings");
 
         return null;
     }
@@ -144,6 +141,8 @@ async function rcWizard(file) {
 }
 
 const msg = {
+    // @TODO factor out all feedback messages/alerts/prompts into dedicated module
+
     enoent: (type, path) => `${type} path does not exist:\n\n"${path}"`,
 
     basedirPkg: prefs => `

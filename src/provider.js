@@ -6,7 +6,7 @@ class IssuesProvider {
         this.exec = (editor, fix = false) => {
             return execLinter(editor, fix).catch(err => {
                 console.error(err);
-                alert(`Uncaught Error:\n\n${err}`);
+                alert(`${err.name}:\n${err.message}`, "Report");
             });
         };
     }
@@ -20,7 +20,7 @@ class IssuesProvider {
                 const issue = new Issue();
                 issue.source = "Stylelint";
                 issue.code = w.rule;
-                issue.message = w.text.replace(/ \(.*\)/, "");
+                issue.message = w.text.replace(/ \(.*\)$/, "");
                 issue.severity = ( w.severity === "error" ? IssueSeverity.Error : IssueSeverity.Warning );
                 issue.line = w.line;
                 issue.column = w.column;

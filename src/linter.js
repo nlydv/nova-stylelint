@@ -34,7 +34,7 @@ async function execLinter(editor, fix = false) {
 
     /* —————————————————————————————————————————————————————————————————— */
 
-    const process = new Promise((resolve, reject) => {
+    const linter = new Promise((resolve, reject) => {
         let error = "";
         let output = "";
 
@@ -65,8 +65,8 @@ async function execLinter(editor, fix = false) {
             console.log(`From: ${process.cwd}\nCmd:  ${process.args.slice(1).map(i => i.replace(/"/g, "")).join(" ")}`);
     });
 
-    if ( fix ) return await process;
-    else       return JSON.parse(await process);
+    if ( fix ) return await linter;
+    else       return JSON.parse(await linter);
 }
 
 /* —————————————————————————————————————————————————————————————————— */

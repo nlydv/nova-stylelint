@@ -8,3 +8,27 @@ overrides:
 
     extends: stylelint-config-standard-scss
     plugins: stylelint-scss
+
+    rules:
+        # Disabling/replacing conflicting plain CSS rules
+        at-rule-no-unknown:                 null
+        scss/at-rule-no-unknown:            true
+
+        function-no-unknown:                null
+        scss/function-no-unknown:           null # disabled since it doesn't account for user-defined functions
+
+        at-rule-name-case:                  null
+        function-name-case:                 null
+
+        comment-no-empty:                   null
+        scss/comment-no-empty:              null
+
+        # Sane defaults, flexible overrides of standard-scss
+        scss/double-slash-comment-empty-line-before: null
+        scss/dollar-variable-empty-line-before:      null
+        scss/at-if-closing-brace-newline-after:      null
+        scss/at-if-closing-brace-space-after:        null
+        scss/at-else-closing-brace-newline-after:    null
+        scss/at-else-closing-brace-space-after:      null
+        scss/at-else-empty-line-before:              null
+        scss/dollar-variable-colon-space-after:      at-least-one-space

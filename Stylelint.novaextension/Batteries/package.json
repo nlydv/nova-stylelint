@@ -1,5 +1,6 @@
 {
-    "name": "nova-stylelint-batteries",
+    "name": "nova-stylelint/batteries",
+    "description": "Nova Stylelint comes with batteries included (additional plugins sold separately)",
     "private": true,
     "dependencies": {
         "stylelint": "^14.6.1",

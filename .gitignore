@@ -4,3 +4,5 @@ node_modules
 .tern-project
 *.novaextension/Scripts/*
 *.novaextension/*.md
+.github/*.tar.xz
+.env
