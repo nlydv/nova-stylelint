@@ -16,21 +16,14 @@
  */
 
 const IssuesProvider = require("./provider");
-const batteries = require("./batteries");
 
 const composite = new CompositeDisposable();
 
 async function activate() {
-    if ( ! batteries.areInstalled() ) {
-        await batteries.install()
-            .then(out => console.log(out))
-            .catch(err => console.error(err));
-    }
-
     const issuesProvider = new IssuesProvider;
 
     const provider = nova.assistants.registerIssueAssistant(
-        [ "css", "scss", "sass", "less" ],
+        issuesProvider.syntaxes,
         issuesProvider,
         { event: "onChange" }
     );

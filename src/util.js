@@ -86,7 +86,7 @@ function newPath() {
     return newPath.join(":");
 }
 
-async function runProc(command, dir = null) {
+async function runProc(command, dir = null, log = false) {
     command = command.split(" ");
     const [ cmd, args ] = [ command.shift(), command ];
 
