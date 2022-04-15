@@ -13,6 +13,7 @@
       "script" : "npm run watch"
     }
   },
+  "buildBeforeRunning" : true,
   "openLogOnRun" : "fail",
   "persistent" : true
 }

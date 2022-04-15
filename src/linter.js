@@ -1,7 +1,8 @@
 const batteries = require("./batteries");
-const { notify, getPrefs, rcWizard, newPath } = require("./util");
+const { getPrefs, newPath } = require("./util");
+const { rcWizard } = require("./wizard");
 
-async function execLinter(editor) {
+async function execLinter(editor, fix = false) {
     const { document: doc } = editor;
     const prefs = getPrefs();
 
@@ -15,7 +16,7 @@ async function execLinter(editor) {
         shell: "/bin/bash"
     };
 
-    // Prefered executable location via $PATH
+    // Prefered executable location via $PATH (unless `exec.custom` is on)
     opt.env.PATH = newPath();
 
     // Determine whether to auto-discover config, use specific config, or arbort
@@ -28,13 +29,16 @@ async function execLinter(editor) {
     if ( prefs.basedir )           opt.args.push("--config-basedir", prefs.basedir);
     else if ( rc === "batteries" ) opt.args.push("--config-basedir", batteries.dir);
 
+    // When running fix command
+    if ( fix ) opt.args.push("--fix");
+
     /* —————————————————————————————————————————————————————————————————— */
 
-    const process = new Promise((resolve, reject) => {
+    const linter = new Promise((resolve, reject) => {
         let error = "";
         let output = "";
 
-        const process = new Process("stylelint", opt);
+        const process = new Process(prefs.stylelint, opt);
 
         process.onStderr(line => error += line);
         process.onStdout(line => output += line);
@@ -58,10 +62,11 @@ async function execLinter(editor) {
 
         // For debugging purposes
         if ( nova.inDevMode() )
-            console.log(`${process.args.slice(1).map(i => i.replace(/"/g, "")).join(" ")}`);
+            console.log(`From: ${process.cwd}\nCmd:  ${process.args.slice(1).map(i => i.replace(/"/g, "")).join(" ")}`);
     });
 
-    return JSON.parse(await process);
+    if ( fix ) return await linter;
+    else       return JSON.parse(await linter);
 }
 
 /* —————————————————————————————————————————————————————————————————— */

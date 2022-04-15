@@ -1,0 +1,26 @@
+---
+hooks:
+    "before:bump":        bin/bump.sh ${version}
+    "after:bump":         bin/validate.sh
+    "before:git:release": bin/pack.sh ${version}
+    "after:git:release":  bin/publish.sh
+
+git:
+    requireCleanWorkingDir: no
+    requireBranch:          master
+    requireCommits:         yes
+    addUntrackedFiles:      yes
+    commit:                 yes
+    commitMessage:          Release v${version}
+    releaseName:            v${version}
+    tagAnnotation:          Version ${version}
+    tagArgs:                -s
+
+github:
+    release:      yes
+    releaseNotes: bin/notes.sh ${latestVersion} ${version}
+    assets:       bin/Stylelint.novaextension-v${version}.tar.xz
+    tokenRef:     RELEASE_IT
+
+npm:
+    publish: false

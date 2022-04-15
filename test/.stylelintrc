@@ -29,8 +29,6 @@ rules:
 
     property-no-unknown:
       - true
-      - severity:
-          - warn
       - ignoreProperties:
           - font-named-instance
 
@@ -83,10 +81,7 @@ rules:
     selector-list-comma-space-before:          never
     selector-list-comma-space-after:           always-single-line
     selector-list-comma-newline-before:        never-multi-line
-    selector-list-comma-newline-after:
-      - always-multi-line
-      - severity:
-         - warn
+    selector-list-comma-newline-after:         always-multi-line
     selector-combinator-space-before:          always
     selector-combinator-space-after:           always
 
@@ -136,17 +131,31 @@ overrides:
       - "/**/*.scss"
       - "/**/*.sass"
     extends:
-        - stylelint-config-recommended
-        - stylelint-config-standard
-        - stylelint-config-recommended-scss
-        - stylelint-config-standard-scss
+      - stylelint-config-standard-scss
     plugins:
-        - stylelint-scss
-        # - stylelint-less
+      - stylelint-scss
     rules:
-        comment-no-empty:                   null
-        function-name-case:                 null
+        # Disabling/replacing conflicting plain CSS rules
         at-rule-no-unknown:                 null
+        scss/at-rule-no-unknown:            true
+
+        function-no-unknown:                null
+        # disabled since it doesn't account for user-defined functions
+        scss/function-no-unknown:           null
+
+        at-rule-name-case:                  null
+        function-name-case:                 null
+
+        scss/at-mixin-pattern:
+          - ^([a-z][a-z0-9]*)(-[a-z0-9]+)*$
+          - message: Expected mixin name to be kebab-case
+            severity: warn
+        scss/at-function-pattern:
+          - ^[a-z][a-zA-Z0-9]+$
+          - message: Expected function name to be camelCase
+            severity: warn
+
+        comment-no-empty:                   null
         no-duplicate-selectors:             null
         block-closing-brace-newline-after:  null
         no-invalid-position-at-import-rule: null
@@ -178,8 +187,9 @@ overrides:
         scss/at-else-closing-brace-space-after:      null
         scss/at-else-empty-line-before:              null
         scss/dollar-variable-colon-space-after:      at-least-one-space
-        scss/at-mixin-pattern:                       ^([a-z][a-z0-9]*)(-[a-z0-9]+)*$
-        scss/at-function-pattern:                    ^[a-z][a-zA-Z0-9]+$
+        # scss/at-mixin-pattern:                       ^([a-z][a-z0-9]*)(-[a-z0-9]+)*$
+        # scss/at-function-pattern:                    ^[a-z][a-zA-Z0-9]+$
+
 
 # ————————————————————————————————————————————————————————————————————————— #
 

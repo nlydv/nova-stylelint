@@ -33,16 +33,17 @@
         "type": "enum",
         "radio": true,
         "values": [
-            [ "none", "Display error notification" ],
-            [ "ignore", "Quietly abort linting" ],
+            [ "loud", "Display error" ],
+            [ "quiet", "Quiet notification" ],
+            [ "silent", "Silently abort linting" ],
             [ "standard", "Lint with stylelint-config-standard" ],
             [ "custom", "Lint with custom config file set below" ]
         ],
-        "default": "none"
+        "default": "quiet"
     },
     {
         "key": "com.neelyadav.Stylelint.fallback.custom",
-        "title": "Custom fallback config",
+        "title": "Custom fallback",
         "description": "Absolute path to a fallback stylelintrc config file.\nCustom fallback behavior only.",
         "type": "path",
         "placeholder": "~/Developer/.stylelintrc",
