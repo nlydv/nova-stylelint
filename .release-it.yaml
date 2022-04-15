@@ -1,23 +1,24 @@
 ---
 hooks:
+    "before:init":        npm run clean && npm run build
     "before:bump":        bin/bump.sh ${version}
     "after:bump":         bin/validate.sh
     "before:git:release": bin/pack.sh ${version}
     "after:git:release":  bin/publish.sh
 
 git:
-    requireCleanWorkingDir: no
+    requireCleanWorkingDir: false
     requireBranch:          master
-    requireCommits:         yes
-    addUntrackedFiles:      yes
-    commit:                 yes
+    requireCommits:         true
+    addUntrackedFiles:      true
+    commit:                 true
     commitMessage:          Release v${version}
     releaseName:            v${version}
     tagAnnotation:          Version ${version}
     tagArgs:                -s
 
 github:
-    release:      yes
+    release:      true
     releaseNotes: bin/notes.sh ${latestVersion} ${version}
     assets:       bin/Stylelint.novaextension-v${version}.tar.xz
     tokenRef:     RELEASE_IT

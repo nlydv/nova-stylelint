@@ -2,11 +2,20 @@
 I'll try to keep up with documenting changes here in this file.
 
 ## 1.1.0
-`TBD`
+`April 14, 2022`
+
+### Added
+- Commands for issue fixing and manually linting active stylesheet
+
+### Fixed
+- Elusive bug related to unescaped spaces in file paths
+- Sporadic/jittery behavior on activation & initial install
 
 ### Changed
-- More contextualized `stylelintrc` error reporting
-- Code optimizations
+- `fallback.behavior` options from `[none|ignore]` to `[loud|quiet|silent]`
+- More contextualized & actionable `stylelintrc` error information
+- Much better UX in general when passing errors/alerts to user
+- Updated extension icon
 
 ## 1.0.4
 Bump to fix in-app icon display

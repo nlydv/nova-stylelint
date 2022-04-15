@@ -11,7 +11,7 @@ if [[ $# -ne 1 ]]; then
 fi
 
 UNPACKED=Stylelint.novaextension
-ARCHIVED=.github/${UNPACKED}-v${1}.tar.xz
+ARCHIVED=bin/${UNPACKED}-v${1}.tar.xz
 
 [[ -e $ARCHIVED ]] && rm $ARCHIVED
 tar -cJf $ARCHIVED $UNPACKED

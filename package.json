@@ -1,7 +1,7 @@
 {
     "name": "nova-stylelint",
     "author": "Neel Yadav <mail@neelyadav.com>",
-    "version": "1.0.4",
+    "version": "1.1.0",
     "description": "Stylelint extension for Nova, a new macOS-native code editor from Panic.",
     "private": true,
     "license": "MIT",
