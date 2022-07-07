@@ -2,13 +2,13 @@
 hooks:
     "before:init":        npm run clean && npm run build
     "before:bump":        bin/bump.sh ${version}
-    "after:bump":         bin/validate.sh
+    "after:bump":         nova extension validate Stylelint.novaextension
     "before:git:release": bin/pack.sh ${version}
-    "after:git:release":  bin/publish.sh
+    "after:git:release":  nova extension publish Stylelint.novaextension --no-confirm
 
 git:
     requireCleanWorkingDir: false
-    requireBranch:          master
+      #requireBranch:          master
     requireCommits:         true
     addUntrackedFiles:      true
     commit:                 true
@@ -20,7 +20,7 @@ git:
 github:
     release:      true
     releaseNotes: bin/notes.sh ${latestVersion} ${version}
-    assets:       bin/Stylelint.novaextension-v${version}.tar.xz
+    assets:       bin/Stylelint-v${version}.novaextension.tar.xz
     tokenRef:     RELEASE_IT
 
 npm:
