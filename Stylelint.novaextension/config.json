@@ -39,7 +39,7 @@
             [ "standard", "Lint with stylelint-config-standard" ],
             [ "custom", "Lint with custom config file set below" ]
         ],
-        "default": "quiet"
+        "default": "loud"
     },
     {
         "key": "com.neelyadav.Stylelint.fallback.custom",
