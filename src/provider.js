@@ -1,6 +1,6 @@
 const batteries = require("./batteries");
 const execLinter = require("./linter");
-const { alert, notify } = require("./util");
+const { alert } = require("./util");
 
 class IssuesProvider {
     constructor() {
@@ -14,7 +14,7 @@ class IssuesProvider {
 
             return execLinter(editor, fix).catch(err => {
                 console.error(err);
-                alert(`${err.name}:\n${err.message}`, "Report");
+                alert(`Uncaught Error\n\n${err.name}:\n${err.message}`, "Report");
             });
         };
     }
@@ -54,6 +54,8 @@ class IssuesProvider {
                 issue.severity = ( w.severity === "error" ? IssueSeverity.Error : IssueSeverity.Warning );
                 issue.line = w.line;
                 issue.column = w.column;
+                issue.endLine = w.endLine;
+                issue.endColumn = w.endColumn;
 
                 issues.push(issue);
             }
@@ -63,8 +65,6 @@ class IssuesProvider {
     }
 
     async fixIssues(editor) {
-        const { document: doc } = editor;
-
         const res = await this.exec(editor, true).catch(err => null);
 
         if ( res ) {
