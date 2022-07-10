@@ -71,22 +71,44 @@ function workspacePath() {
     }
 }
 
-function newPath() {
-    const prefs = getPrefs();
-    const env = nova.environment.PATH;
+async function newPath(cwd = null) {
+    let newPath = [ nova.environment.PATH, batteries.dir ];
 
-    const workspace      = workspacePath();
-    const localBin       = nova.path.join(workspace, "node_modules/.bin");
-    const localLinter    = nova.path.join(localBin, "stylelint");
-    const hasLocalLinter = nova.fs.access(localLinter, nova.fs.X_OK);
+    if ( ! cwd ) return newPath.join(":");
 
-    let newPath = [ localBin, env, batteries.dir ];
-    if ( ! hasLocalLinter ) newPath.shift();
+    const opt = {
+        args: [ "bin" ],
+        cwd: cwd,
+        env: nova.environment,
+        stdio: "pipe",
+        shell: "/bin/bash"
+    };
+
+    const npxDir = await new Promise((resolve, reject) => {
+        let stdout = "";
+        let stderr = "";
+        const proc = new Process("npm", opt);
+        proc.onStdout(line => stdout += line.trim());
+        proc.onStderr(line => stderr += line.trim());
+        proc.onDidExit(status => {
+            console.error(stderr);
+            status === 0 ? resolve(stdout) : resolve(null);
+        });
+        proc.start();
+    });
+
+    const hasLocalLinter = (
+        npxDir
+            ? nova.fs.access(nova.path.join(npxDir, "stylelint"), nova.fs.X_OK)
+            : false
+    );
+
+    if ( hasLocalLinter ) newPath.unshift(npxDir);
 
     return newPath.join(":");
 }
 
-async function runProc(command, dir = null, log = false) {
+async function runProc(command, dir = null) {
     command = command.split(" ");
     const [ cmd, args ] = [ command.shift(), command ];
 
@@ -98,9 +120,9 @@ async function runProc(command, dir = null, log = false) {
         shell: "/bin/bash"
     };
 
-    opt.env.PATH = newPath();
+    opt.env.PATH = await newPath(opt.cwd);
 
-    const proc = new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
         let stdout = "";
         let stderr = "";
 
@@ -111,14 +133,18 @@ async function runProc(command, dir = null, log = false) {
         //  • collect listeners below (and elsewhere) in CompositeDisposable and dispose on completion
         //  • see if noticable difference in benchmark performance && iterate
 
-        proc.onStdout(line => stdout += line);
-        proc.onStderr(line => stderr += line);
-        proc.onDidExit(status => status === 0 ? resolve(stdout) : reject(stderr));
+        proc.onStdout(line => stdout += line.trim());
+        proc.onStderr(line => stderr += line.trim());
+        proc.onDidExit(status => {
+            // For debugging purposes
+            if ( nova.inDevMode() )
+                console.log(`Path: ${opt.env.PATH}\nFrom: ${opt.cwd}\nCmd:  ${command.join(" ")}`);
+
+            status === 0 ? resolve(stdout) : reject(stderr);
+        });
 
         proc.start();
     });
-
-    return await proc;
 }
 
 module.exports = {

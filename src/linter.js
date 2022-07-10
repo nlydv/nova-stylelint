@@ -1,6 +1,6 @@
 const batteries = require("./batteries");
-const { getPrefs, newPath } = require("./util");
 const { rcWizard } = require("./wizard");
+const { alert, getPrefs, newPath } = require("./util");
 
 async function execLinter(editor, fix = false) {
     const { document: doc } = editor;
@@ -17,9 +17,9 @@ async function execLinter(editor, fix = false) {
     };
 
     // Prefered executable location via $PATH (unless `exec.custom` is on)
-    opt.env.PATH = newPath();
+    opt.env.PATH = await newPath(opt.cwd);
 
-    // Determine whether to auto-discover config, use specific config, or arbort
+    // Determine whether to auto-discover config, use specific config, or abort
     const rc = await rcWizard(doc.path);
     if ( ! rc )                    return;
     else if ( rc === "standard")   opt.args.push("--config", batteries.standard);
@@ -62,11 +62,29 @@ async function execLinter(editor, fix = false) {
 
         // For debugging purposes
         if ( nova.inDevMode() )
-            console.log(`From: ${process.cwd}\nCmd:  ${process.args.slice(1).map(i => i.replace(/"/g, "")).join(" ")}`);
+            console.log(`Path: ${opt.env.PATH}\nFrom: ${process.cwd}\nCmd:  ${process.args.slice(1).map(i => i.replace(/"/g, "")).join(" ")}`);
     });
 
-    if ( fix ) return await linter;
-    else       return JSON.parse(await linter);
+    const result = await linter.catch(e => handleError(e, doc.path));
+
+    if ( fix ) return result;
+    else       return JSON.parse(result);
+}
+
+function handleError(err, file = null) {
+    const stderr = err.split("\n");
+    if ( stderr[0].includes("Cannot resolve custom syntax module") ) {
+        const msg = stderr[0].split("Error: ")[1];
+        const name = "Module Resolution Error";
+
+        let formatted = `${name}\n\n${msg}`;
+
+        console.error(formatted);
+        alert(formatted);
+        return null;
+    } else {
+        throw err;
+    }
 }
 
 /* —————————————————————————————————————————————————————————————————— */
