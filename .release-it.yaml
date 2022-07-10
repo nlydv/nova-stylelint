@@ -8,7 +8,7 @@ hooks:
 
 git:
     requireCleanWorkingDir: false
-      #requireBranch:          master
+    requireBranch:          master
     requireCommits:         true
     addUntrackedFiles:      true
     commit:                 true
@@ -20,7 +20,7 @@ git:
 github:
     release:      true
     releaseNotes: bin/notes.sh ${latestVersion} ${version}
-    assets:       bin/Stylelint-v${version}.novaextension.tar.xz
+    assets:       bin/Stylelint.novaextension-v${version}.tar.xz
     tokenRef:     RELEASE_IT
 
 npm:

@@ -1,53 +1,63 @@
+# yaml-language-server: $schema=https://json.schemastore.org/eslintrc.json
 ---
 env:
     browser: false
     node: true
-    es6: true
+    es2021: true
     nova/nova: true
-
-plugins:
-    - nova
 
 parserOptions:
     ecmaVersion: latest
     sourceType: module
 
-extends: eslint:recommended
+extends: "eslint:recommended"
+
+plugins:
+  - nova
+
+ignorePatterns:
+  - "**/node_modules/*"
+  - "**/*.dist.js"
+  - "**/*.json"
+  - "**/*.md"
 
 rules:
     indent:
-        - error
-        - 4
-        - SwitchCase: 1
+      - error
+      - 4
+      - SwitchCase: 1
+        ignoreComments: true
 
     linebreak-style:
-        - error
-        - unix
+      - error
+      - unix
 
     quotes:
-        - error
-        - double
-        - avoidEscape: true
+      - error
+      - double
+      - avoidEscape: true
 
     semi:
-        - error
-        - always
+      - error
+      - always
 
     no-promise-executor-return: warn
     no-async-promise-executor: warn
 
     arrow-parens:
-        - warn
-        - as-needed
+      - warn
+      - as-needed
     array-element-newline:
-        - warn
-        - consistent
+      - warn
+      - consistent
     comma-dangle:
-        - warn
-        - never
+      - warn
+      - never
     computed-property-spacing:
-        - error
-        - never
+      - error
+      - never
 
     no-unused-vars: off
     array-bracket-spacing: off
+    no-empty: off
+    no-useless-escape: off

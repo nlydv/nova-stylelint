@@ -9,3 +9,4 @@ bin/*.tar.xz
 .nova/*
 !.nova/Tasks
 !.nova/Tasks/*
+!.nova/Configuration.json
