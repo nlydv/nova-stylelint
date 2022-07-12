@@ -29,13 +29,20 @@ function notify(id, msg, type = null) {
 
 function getPrefs() {
     const prefs = { exec: {}, fallback: {}, cache: {} };
+    const inheritGlobal = nova.workspace.config.get("com.neelyadav.Stylelint.local.inherit");
 
     const val = key => {
-        let pref = nova.config.get(`com.neelyadav.Stylelint.${key}`);
+        const fullKey = `com.neelyadav.Stylelint.${key}`;
+
+        let pref = (
+            inheritGlobal
+                ? nova.config.get(fullKey)
+                : nova.workspace.config.get(fullKey)
+                    ?? nova.config.get(fullKey)
+        );
+
         if ( key.endsWith(".path") || key === "basedir" )
-            // Rollup didn't like this `&&=` wizardry (mdn ref: https://t.ly/53kW)
-            // pref &&= nova.path.normalize(pref);
-            pref && (pref = nova.path.normalize(pref));
+            pref &&= nova.path.normalize(nova.path.expanduser(pref));
 
         return pref;
     };
@@ -50,10 +57,11 @@ function getPrefs() {
     prefs.cache.on          = val("cache.on");
     prefs.cache.path        = val("cache.path");
 
-    prefs.stylelint =
+    prefs.stylelint = (
         prefs.exec.custom
             ? ( prefs.exec.path ?? "stylelint" )
-            : "stylelint";
+            : "stylelint"
+    );
 
     return prefs;
 }
@@ -91,7 +99,7 @@ async function newPath(cwd = null) {
         proc.onStdout(line => stdout += line.trim());
         proc.onStderr(line => stderr += line.trim());
         proc.onDidExit(status => {
-            console.error(stderr);
+            if ( stderr ) console.error(stderr);
             status === 0 ? resolve(stdout) : resolve(null);
         });
         proc.start();

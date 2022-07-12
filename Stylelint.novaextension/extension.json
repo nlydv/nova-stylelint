@@ -51,7 +51,8 @@
         ]
     },
 
-    "config": "config.json",
+    "config": "global.json",
+    "configWorkspace": "local.json",
 
     "entitlements": {
         "filesystem": "readonly",

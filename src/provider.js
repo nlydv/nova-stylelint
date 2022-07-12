@@ -6,6 +6,14 @@ class IssuesProvider {
     constructor() {
         this.syntaxes = [ "css", "scss", "sass", "less" ];
 
+        const switchKey = "com.neelyadav.Stylelint.local.disable";
+        const switchListener = nova.workspace.config.onDidChange(
+            switchKey,
+            (newValue, oldValue) => this.isDisabled = newValue
+        );
+
+        this.isDisabled = nova.workspace.config.get(switchKey);
+
         this.installAttempts = 0;
 
         this.exec = (editor, fix = false) => {
@@ -24,6 +32,8 @@ class IssuesProvider {
     }
 
     async provideIssues(editor) {
+        if ( this.isDisabled ) return [];
+
         const issues = [];
 
         // This block is to avoid premature execution and naively throwing around promises that
