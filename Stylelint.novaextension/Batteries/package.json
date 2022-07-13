@@ -6,6 +6,7 @@
         "stylelint": "^14.9.1",
         "stylelint-config-standard": "latest",
         "stylelint-config-standard-scss": "latest",
-        "stylelint-scss": "latest"
+        "stylelint-scss": "latest",
+        "postcss-scss": "latest"
     }
 }

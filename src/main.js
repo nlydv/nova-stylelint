@@ -17,9 +17,10 @@
 
 const IssuesProvider = require("./provider");
 
+
 const composite = new CompositeDisposable();
 
-async function activate() {
+function activate() {
     const issuesProvider = new IssuesProvider;
 
     const provider = nova.assistants.registerIssueAssistant(
@@ -28,23 +29,24 @@ async function activate() {
         { event: "onChange" }
     );
 
-    nova.commands.register("lint", editor => {
+    const lint = nova.commands.register("lint", editor => {
         if ( ! TextEditor.isTextEditor(editor) )
             editor = nova.workspace.activeTextEditor;
 
-        const lintCmd = issuesProvider.provideIssues(editor);
-        composite.add(lintCmd);
+        issuesProvider.provideIssues(editor);
     });
 
-    nova.commands.register("lintFix", editor => {
+    const lintFix = nova.commands.register("lintFix", editor => {
         if ( ! TextEditor.isTextEditor(editor) )
             editor = nova.workspace.activeTextEditor;
 
-        const fixCmd = issuesProvider.fixIssues(editor);
-        composite.add(fixCmd);
+        issuesProvider.fixIssues(editor);
     });
 
     composite.add(provider);
+    composite.add(lint);
+    composite.add(lintFix);
+
     console.log("Stylelint extension for Nova has activated.");
 }
 

@@ -41,7 +41,7 @@ async function resolveConfig(file) {
 
         // stylelint finds rc BUT cannot resolve configured plugin/extend packages
         else if ( resolution.error.includes("configBasedir") ) {
-            // do not retry by plugging batteries when user provided basedir failed (unexpected results possible)
+            // do not retry by plugging batteries when user-provided basedir fails (unexpected results possible)
             if ( basedir ) {
                 resolution.status = rc.USER_FAIL;
                 resolution.error = err1.split("\n")[0];
@@ -55,9 +55,6 @@ async function resolveConfig(file) {
                 } catch (err2) {
                     resolution.status = rc.BATT_FAIL;
                     resolution.error = err1.split("\n")[0];
-                    console.warn(err1);
-                    // battery resolution errors are internal, would only confuse users
-                    if ( nova.inDevMode() ) console.warn(err2);
                     return resolution;
                 }
             }

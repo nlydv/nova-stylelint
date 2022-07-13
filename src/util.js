@@ -1,5 +1,6 @@
 const batteries = require("./batteries");
 
+
 function alert(message, alt = null) {
     if ( alt ) {
         nova.workspace.showActionPanel(
@@ -66,17 +67,8 @@ function getPrefs() {
     return prefs;
 }
 
-const relPath = path => nova.workspace.relativizePath(path);
-
-// workaround to get open workspace root, if any, since `nova.workspace.path` doesn't seem to work
-function workspacePath() {
-    try {
-        const active = nova.workspace.activeTextEditor?.document.path;
-        if ( active ) return active.split(relPath(active))[0].slice(0, -1);
-        else          return null;
-    } catch (e) {
-        return null;
-    }
+function relPath(path) {
+    return nova.workspace.relativizePath(path);
 }
 
 async function newPath(cwd = null) {
@@ -97,7 +89,7 @@ async function newPath(cwd = null) {
         let stderr = "";
         const proc = new Process("npm", opt);
         proc.onStdout(line => stdout += line.trim());
-        proc.onStderr(line => stderr += line.trim());
+        proc.onStderr(line => stderr += line);
         proc.onDidExit(status => {
             if ( stderr ) console.error(stderr);
             status === 0 ? resolve(stdout) : resolve(null);
@@ -116,8 +108,8 @@ async function newPath(cwd = null) {
     return newPath.join(":");
 }
 
-async function runProc(command, dir = null) {
-    command = command.split(" ");
+async function runProc(shCmd, dir = null) {
+    const command = shCmd.split(" ");
     const [ cmd, args ] = [ command.shift(), command ];
 
     const opt = {
@@ -141,12 +133,12 @@ async function runProc(command, dir = null) {
         //  • collect listeners below (and elsewhere) in CompositeDisposable and dispose on completion
         //  • see if noticable difference in benchmark performance && iterate
 
-        proc.onStdout(line => stdout += line.trim());
-        proc.onStderr(line => stderr += line.trim());
+        proc.onStdout(line => stdout += line);
+        proc.onStderr(line => stderr += line);
         proc.onDidExit(status => {
             // For debugging purposes
             if ( nova.inDevMode() )
-                console.log(`Path: ${opt.env.PATH}\nFrom: ${opt.cwd}\nCmd:  ${command.join(" ")}`);
+                console.log(`Path: ${opt.env.PATH}\nFrom: ${opt.cwd}\nCmd:  ${shCmd}`);
 
             status === 0 ? resolve(stdout) : reject(stderr);
         });
@@ -161,6 +153,5 @@ module.exports = {
     getPrefs,
     runProc,
     relPath,
-    workspacePath,
     newPath
 };

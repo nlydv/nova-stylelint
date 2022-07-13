@@ -2,6 +2,7 @@ const batteries = require("./batteries");
 const execLinter = require("./linter");
 const { alert } = require("./util");
 
+
 class IssuesProvider {
     constructor() {
         this.syntaxes = [ "css", "scss", "sass", "less" ];
@@ -15,20 +16,32 @@ class IssuesProvider {
         this.isDisabled = nova.workspace.config.get(switchKey);
 
         this.installAttempts = 0;
-
-        this.exec = (editor, fix = false) => {
-            if ( ! this.syntaxes.includes(editor.document.syntax) )
-                return null;
-
-            return execLinter(editor, fix).catch(err => {
-                console.error(err);
-                alert(`Uncaught Error\n\n${err.name}:\n${err.message}`, "Report");
-            });
-        };
     }
 
     get batteriesInstalled() {
         return batteries.areInstalled();
+    }
+
+    exec(editor, fix = false) {
+        if ( ! this.syntaxes.includes(editor.document.syntax) )
+            return null;
+
+        return execLinter(editor, fix).catch(err => {
+            console.error(err);
+            alert(`Uncaught Error\n\n${err.name}:\n${err.message}`, "Report");
+        });
+    }
+
+    fixIssues(editor) {
+        function applyFix(res) {
+            editor.edit(editorEdit => {
+                editorEdit.replace(new Range(0, editor.document.length), res);
+            });
+        }
+
+        this.exec(editor, true)
+            .then(applyFix)
+            .catch(err => null);
     }
 
     async provideIssues(editor) {
@@ -41,10 +54,10 @@ class IssuesProvider {
         if ( ! this.batteriesInstalled ) {
             console.log("Postponing linter execution until initial install is complete...");
 
-            if ( this.installAttempts >= 5 )
-                alert("Error:\nInstallation of extension aborted after 5 failed attempts", "Report");
+            if ( this.installAttempts >= 3 )
+                alert("Error:\nInstallation of extension aborted after 3 failed attempts", "Report");
             else if ( this.installAttempts === 1 )
-                alert("Warning:\nExtension installtion failed on first attempt.");
+                alert("Warning:\nExtension installation failed on first attempt.");
             else {
                 await batteries.install()
                     .then(x => x && console.log("...installed successfully."))
@@ -72,16 +85,6 @@ class IssuesProvider {
         }
 
         return issues;
-    }
-
-    async fixIssues(editor) {
-        const res = await this.exec(editor, true).catch(err => null);
-
-        if ( res ) {
-            editor.edit(editorEdit => {
-                editorEdit.replace(new Range(0, editor.document.length), res);
-            });
-        }
     }
 }
 
