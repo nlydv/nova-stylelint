@@ -3,46 +3,46 @@
  * is set by user to "standard" linting.
  *
  * move out into ~/test directory (or wherever there's not accessible
- * stylelintrc config file available) and open with `nova ~/test`.
+ * stylelintrc config file available) and open with `nova ~/test/sassy.scss`.
  */
 
 @use "sass:meta";
 
 $test: (
-    1: "hello",
-    2: "world"
+  1: "hello",
+  2: "world"
 );
 
-// function names should be lowerCamelCase
 @function sass-function($param) {
-    // spaces required before and after '=='
-    @if meta.type-of($param)==number {
-        @return $param * 10;
-    }
+  // Expected single space before "==" - Stylelint (scss/operator-no-unspaced)
+  // Expected single space after "==" - Stylelint (scss/operator-no-unspaced)
+  @if meta.type-of($param)==number {
+    @return $param * 10;
+  }
 
-    @else {
+  @else {
+    // Expected indendation of 4 spaces - Stylelint(indentation)
         @return $param + " (string)";
-    }
+  }
 }
 
-// mixin names should be kebab-case
+// Expected mixin name to be kebab-case - Stylelint (scss/at-mixin-pattern)
 @mixin mixinName() {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
-html, body {
-    // argumentless mixin shouldn't have '()'
-    @include mixinName();
+html,
+body {
+  @include mixinName;
 
-    font-size: sass-function(5) + px;
-    color: #000000;
-    background-color: #FFFFFF;
+  font-size: sass-function(5) + px;
+  color: #000;
+  background-color: #fff;
 
-    // 4 space indent instead of 8;
-        display: flex;
+  display: flex; // Unexpected empty line before declaration - Stylelint(declaration-empty-line-before)
 
-    &::before {
-        font-size: 0;
-        content: sass-function("hello, world");
-    }
+  &::before {
+    font-size: 0;
+    content: sass-function("hello, world");
+  }
 }
