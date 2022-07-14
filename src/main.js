@@ -46,6 +46,7 @@ function activate() {
     composite.add(provider);
     composite.add(lint);
     composite.add(lintFix);
+    composite.add(issuesProvider.switchListener);
 
     console.log("Stylelint extension for Nova has activated.");
 }

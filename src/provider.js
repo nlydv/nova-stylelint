@@ -8,18 +8,13 @@ class IssuesProvider {
         this.syntaxes = [ "css", "scss", "sass", "less" ];
 
         const switchKey = "com.neelyadav.Stylelint.local.disable";
-        const switchListener = nova.workspace.config.onDidChange(
+        this.isDisabled = nova.workspace.config.get(switchKey);
+        this.switchListener = nova.workspace.config.onDidChange(
             switchKey,
-            (newValue, oldValue) => this.isDisabled = newValue
+            newValue => this.isDisabled = newValue
         );
 
-        this.isDisabled = nova.workspace.config.get(switchKey);
-
         this.installAttempts = 0;
-    }
-
-    get batteriesInstalled() {
-        return batteries.areInstalled();
     }
 
     exec(editor, fix = false) {
@@ -45,27 +40,11 @@ class IssuesProvider {
     }
 
     async provideIssues(editor) {
-        if ( this.isDisabled ) return [];
+        const batteryStatus = await this.hasLiveBatteries();
+        if ( ! batteryStatus || this.isDisabled )
+            return [];
 
         const issues = [];
-
-        // This block is to avoid premature execution and naively throwing around promises that
-        // resulted in jittery and often unpredictable behavior previously.
-        if ( ! this.batteriesInstalled ) {
-            console.log("Postponing linter execution until initial install is complete...");
-
-            if ( this.installAttempts >= 3 )
-                alert("Error:\nInstallation of extension aborted after 3 failed attempts", "Report");
-            else if ( this.installAttempts === 1 )
-                alert("Warning:\nExtension installation failed on first attempt.");
-            else {
-                await batteries.install()
-                    .then(x => x && console.log("...installed successfully."))
-                    .catch(x => this.installAttempts++);
-                return [];
-            }
-        }
-
         const results = await this.exec(editor);
 
         for ( const r of results ) {
@@ -85,6 +64,30 @@ class IssuesProvider {
         }
 
         return issues;
+    }
+
+    // This method exists to avoid premature execution and naively throwing around
+    // promises that resulted in jittery and often unpredictable behavior previously.
+    async hasLiveBatteries() {
+        if ( ! batteries.areInstalled() ) {
+            console.log("Postponing linter execution until initial install is complete...");
+
+            for ( let x = 0; this.installAttempts < 3; this.installAttempts++ ) {
+                if ( this.installAttempts === 1 )
+                    alert("Warning:\nExtension installation failed on first attempt.\nRetrying...");
+                if ( await batteries.install() ) {
+                    console.log("...installed successfully.");
+                    return true;
+                }
+            }
+
+            if ( ! batteries.areInstalled() ) {
+                alert("Error:\nInitial extension dependency installation failed.", "Report");
+                return false;
+            }
+        } else {
+            return true;
+        }
     }
 }
 

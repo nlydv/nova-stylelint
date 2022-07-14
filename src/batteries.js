@@ -7,19 +7,22 @@ let bin           = nova.path.join(dir, "node_modules", ".bin");
 let standard      = nova.path.join(dir, "standard.yaml");
 let stylelintPath = nova.path.join(bin, "stylelint");
 
-async function install() {
+function install() {
     return runProc("/usr/bin/env npm ci", dir)
         .then(i => console.log(i))
         .then(b => true)
-        .catch(e => alert(
+        .catch(e => {
             // @TODO factor out all feedback messages/alerts/prompts into dedicated module
-            "Extension installation exited unexpectedly\n"
+            const note = "Extension installation exited unexpectedly\n"
             + "\n"
             + "Check the Extension Console for any clues. If the problem persists, try uninstalling and reinstalling the extension.\n"
             + "\n"
-            + "If you get tired of seeing this alert, let the developer know by reporting the issue in the GitHub repository.",
-            "Report"
-        ));
+            + "If you get tired of seeing this alert, let the developer know by reporting the issue in the GitHub repository.";
+
+            alert(note, "Report");
+            console.error(e);
+            return false;
+        });
 }
 
 function areInstalled() {
