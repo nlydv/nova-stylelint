@@ -32,7 +32,10 @@ function getPrefs() {
     const prefs = { exec: {}, fallback: {}, cache: {} };
     const inheritGlobal = nova.workspace.config.get("com.neelyadav.Stylelint.local.inherit");
 
-    const val = key => {
+    // @TODO change following key names so all path args end in ".path"
+    const pathKeys = [ "basedir", "fallback.custom" ];
+
+    function val(key) {
         const fullKey = `com.neelyadav.Stylelint.${key}`;
 
         let pref = (
@@ -42,13 +45,11 @@ function getPrefs() {
                     ?? nova.config.get(fullKey)
         );
 
-        if ( key.endsWith(".path") || key === "basedir" )
-            pref &&= nova.path.normalize(nova.path.expanduser(pref));
+        if ( key.endsWith(".path") || pathKeys.includes(key) )
+            pref &&= nova.path.normalize(pref);
 
         return pref;
-    };
-
-    // @TODO change 'basedir' to 'basedir.path' so all path args have '.path' ending
+    }
 
     prefs.exec.custom       = val("exec.custom");
     prefs.exec.path         = val("exec.path");
@@ -72,7 +73,7 @@ function relPath(path) {
 }
 
 async function newPath(cwd = null) {
-    let newPath = [ nova.environment.PATH, batteries.dir ];
+    let newPath = [ nova.environment.PATH, batteries.bin ];
 
     if ( ! cwd ) return newPath.join(":");
 
@@ -108,8 +109,10 @@ async function newPath(cwd = null) {
     return newPath.join(":");
 }
 
-async function runProc(shCmd, dir = null) {
-    const command = shCmd.split(" ");
+async function runProc(dir, ...command) {
+    if ( command.every(c => c instanceof Array) )
+        command = command.flat();
+
     const [ cmd, args ] = [ command.shift(), command ];
 
     const opt = {
@@ -138,7 +141,7 @@ async function runProc(shCmd, dir = null) {
         proc.onDidExit(status => {
             // For debugging purposes
             if ( nova.inDevMode() )
-                console.log(`Path: ${opt.env.PATH}\nFrom: ${opt.cwd}\nCmd:  ${shCmd}`);
+                console.log(`Path: ${opt.env.PATH}\nFrom: ${opt.cwd}\nCmd:  ${cmd} ${opt.args.join(" ")}`);
 
             status === 0 ? resolve(stdout) : reject(stderr);
         });

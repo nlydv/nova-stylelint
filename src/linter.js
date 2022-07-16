@@ -23,7 +23,7 @@ async function execLinter(editor, fix = false) {
     // Determine whether to auto-discover config, use specific config, or abort
     const wiz = await rcWizard(doc.path);
     if ( ! wiz )                    return;
-    else if ( wiz === "standard")   opt.args.push("--config", batteries.standard);
+    else if ( wiz === "standard" )  opt.args.push("--config", batteries.standard);
     else if ( wiz === "custom" )    opt.args.push("--config", prefs.fallback.custom);
 
     // Use pre-packaged "batteries" as basedir if needed otherwise use user-configured dir
@@ -75,9 +75,10 @@ function handleError(err, file = null) {
     const stderr = err.split("\n");
     if ( stderr[0].includes("Cannot resolve custom syntax module") ) {
         const msg = stderr[0].split("Error: ")[1];
-        const name = "Module Resolution Error";
+        const note = "Note: Unlike regular plugins, Stylelint requires PostCSS custom syntax modules to be installed in the same location as Stylelint itself.";
 
-        let formatted = `${name}\n\n${msg}`;
+        // @TODO: refactor out messages
+        let formatted = `Custom Syntax Resolution Error\n\n${msg}\n\n${note}`;
 
         console.error(formatted);
         alert(formatted);
