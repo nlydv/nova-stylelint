@@ -15,13 +15,18 @@
  *
  */
 
+const batteries = require("./batteries");
 const IssuesProvider = require("./provider");
 
 
 const composite = new CompositeDisposable();
 
-function activate() {
+async function activate() {
     const issuesProvider = new IssuesProvider;
+
+    // This is to avoid premature execution and naively throwing around promises
+    // that resulted in jittery and often unpredictable behavior previously.
+    issuesProvider.hasLiveBatteries = await batteries.kickstart();
 
     const provider = nova.assistants.registerIssueAssistant(
         issuesProvider.syntaxes,

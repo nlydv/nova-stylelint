@@ -14,7 +14,7 @@ class IssuesProvider {
             newValue => this.isDisabled = newValue
         );
 
-        this.installAttempts = 0;
+        this.hasLiveBatteries = false;
     }
 
     exec(editor, fix = false) {
@@ -40,8 +40,7 @@ class IssuesProvider {
     }
 
     async provideIssues(editor) {
-        const batteryStatus = await this.hasLiveBatteries();
-        if ( ! batteryStatus || this.isDisabled )
+        if ( ! this.hasLiveBatteries || this.isDisabled )
             return [];
 
         const issues = [];
@@ -66,27 +65,6 @@ class IssuesProvider {
         return issues;
     }
 
-    // This method exists to avoid premature execution and naively throwing around
-    // promises that resulted in jittery and often unpredictable behavior previously.
-    async hasLiveBatteries() {
-        if ( ! batteries.areInstalled() ) {
-            console.log("Postponing linter execution until initial install is complete...");
-
-            for ( let x = 0; this.installAttempts < 3; this.installAttempts++ ) {
-                if ( this.installAttempts === 1 )
-                    alert("Warning:\nExtension installation failed on first attempt.\nRetrying...");
-                if ( await batteries.install() ) {
-                    console.log("...installed successfully.");
-                    return true;
-                }
-            }
-
-            if ( ! batteries.areInstalled() ) {
-                alert("Error:\nInitial extension dependency installation failed.", "Report");
-                return false;
-            }
-        } else {
-            return true;
         }
     }
 }
