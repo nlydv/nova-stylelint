@@ -29,7 +29,6 @@ function notify(id, msg, type = null) {
 }
 
 function getPrefs() {
-    const prefs = { exec: {}, fallback: {}, cache: {} };
     const inheritGlobal = nova.workspace.config.get("com.neelyadav.Stylelint.local.inherit");
 
     // @TODO change following key names so all path args end in ".path"
@@ -51,13 +50,27 @@ function getPrefs() {
         return pref;
     }
 
-    prefs.exec.custom       = val("exec.custom");
-    prefs.exec.path         = val("exec.path");
-    prefs.fallback.behavior = val("fallback.behavior");
-    prefs.fallback.custom   = val("fallback.custom");
-    prefs.basedir           = val("basedir");
-    prefs.cache.on          = val("cache.on");
-    prefs.cache.path        = val("cache.path");
+    const prefs = {
+        /** @param {Set} avail */
+        getLangs: avail => {
+            const enabled = new Set().add("css");
+            for ( const name of avail ) val(`lang.${name}`) && enabled.add(name);
+            return enabled;
+        },
+        exec: {
+            custom: val("exec.custom"),
+            path: val("exec.path")
+        },
+        fallback: {
+            behavior: val("fallback.behavior"),
+            custom: val("fallback.custom")
+        },
+        cache: {
+            on: val("cache.on"),
+            path: val("cache.path")
+        },
+        basedir: val("basedir")
+    };
 
     prefs.stylelint = (
         prefs.exec.custom

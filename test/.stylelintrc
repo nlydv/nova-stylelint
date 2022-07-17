@@ -2,7 +2,6 @@
 extends: stylelint-config-standard
 
 ignoreFiles:
-  - "**/*.less"
   - "**/node_modules/*"
   - "**/vendor/*"
   - "**/icon/*"
@@ -234,6 +233,6 @@ overrides:
 # ————————————————————————————————————————————————————————————————————————— #
 
   - files:
-      - "*.html"
-      - "**/*.html"
+      - "/**/*.html"
+
     customSyntax: postcss-html

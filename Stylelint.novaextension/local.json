@@ -20,6 +20,32 @@
         ]
     },
     {
+        "title": "Languages",
+        "description": "Select additional file types to lint (plain CSS is always enabled by default).\nNote: using Stylelint on non-CSS files requires installing and configuring extra plugins and/or custom syntax modules.",
+        "link": "https://stylelint.io/migration-guide/to-14",
+        "type": "section",
+        "children": [
+            {
+                "key": "com.neelyadav.Stylelint.lang.scss",
+                "title": "SCSS",
+                "type": "boolean",
+                "default": true
+            },
+            {
+                "key": "com.neelyadav.Stylelint.lang.sass",
+                "title": "Sass",
+                "type": "boolean",
+                "default": true
+            },
+            {
+                "key": "com.neelyadav.Stylelint.lang.less",
+                "title": "Less",
+                "type": "boolean",
+                "default": false
+            }
+        ]
+    },
+    {
         "title": "Executable",
         "type": "section",
         "children": [

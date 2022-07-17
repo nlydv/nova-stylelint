@@ -32,3 +32,8 @@ overrides:
         scss/at-else-closing-brace-space-after:      null
         scss/at-else-empty-line-before:              null
         scss/dollar-variable-colon-space-after:      at-least-one-space
+
+  - files:
+      - "/**/*.html"
+
+    customSyntax: postcss-html

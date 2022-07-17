@@ -1,5 +1,31 @@
 [
     {
+        "title": "Languages",
+        "description": "Select additional file types to lint (plain CSS is always enabled by default).\nNote: using Stylelint on non-CSS files requires installing and configuring extra plugins and/or custom syntax modules.",
+        "link": "https://stylelint.io/migration-guide/to-14",
+        "type": "section",
+        "children": [
+            {
+                "key": "com.neelyadav.Stylelint.lang.scss",
+                "title": "SCSS",
+                "type": "boolean",
+                "default": true
+            },
+            {
+                "key": "com.neelyadav.Stylelint.lang.sass",
+                "title": "Sass",
+                "type": "boolean",
+                "default": true
+            },
+            {
+                "key": "com.neelyadav.Stylelint.lang.less",
+                "title": "Less",
+                "type": "boolean",
+                "default": false
+            }
+        ]
+    },
+    {
         "title": "Executable",
         "type": "section",
         "children": [
@@ -45,17 +71,11 @@
                 "type": "path",
                 "placeholder": "~/Developer/.stylelintrc",
                 "default": null
-            }
-        ]
-    },
-    {
-        "title": "Other Options",
-        "type": "section",
-        "children": [
+            },
             {
                 "key": "com.neelyadav.Stylelint.basedir",
                 "title": "Config base directory",
-                "description": "Absolute path to a directory from which to find plugins and extend rules named in Stylelint config.\n(--config-basedir)",
+                "description": "Absolute path to a directory from which to find plugins and rulesets named in Stylelint config.\n(--config-basedir)",
                 "link": "https://stylelint.io/user-guide/usage/cli#--config-basedir",
                 "type": "path",
                 "placeholder": "~/Developer",
