@@ -7,9 +7,9 @@ if [[ $# -ne 2 ]]; then
     exit 1;
 fi
 
-FROM="$1"
-TO="$2"
-changesection=$(echo "$TO" | sed -E 's/[v\.]//g')
+FROM="v$1"
+TO="v$2"
+changesection=$(echo "$TO" | sed -E 's/[\.]//g')
 
 cat <<EOF
 **Changelog**: [\`$TO\`](../master/CHANGELOG.md#$changesection)

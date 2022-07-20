@@ -6,13 +6,13 @@
     "description": "Stylelint extension for Nova's built-in issue provider system.",
     "license": "MIT",
     "categories": [
+        "issues",
         "formatters",
-        "issues"
+        "commands"
     ],
 
-    "homepage": "https://github.com/nlydv/nova-stylelint",
+    "repository": "https://github.com/nlydv/nova-stylelint",
     "bugs": "https://github.com/nlydv/nova-stylelint/issues",
-    "repository": "https://github.com/nlydv/nova-stylelint.git",
 
     "main": "main.dist.js",
 

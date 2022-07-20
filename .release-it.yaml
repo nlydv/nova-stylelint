@@ -1,10 +1,15 @@
 ---
 hooks:
-    "before:init":        npm run clean && npm run build
-    "before:bump":        bin/bump.sh ${version}
-    "after:bump":         nova extension validate Stylelint.novaextension
-    "before:git:release": bin/pack.sh ${version}
-    "after:git:release":  nova extension publish Stylelint.novaextension --no-confirm
+    # "before:init":        npm run clean && npm run build
+    # "before:bump":        bin/bump.sh ${version}
+    # "after:bump":         nova extension validate Stylelint.novaextension
+    # "before:git:release": bin/pack.sh ${version}
+    # "after:git:release":  nova extension publish Stylelint.novaextension --no-confirm
+    "before:init":           npm i -D && npm shrinkwrap
+    "before:bump":           bin/bump.sh ${version}
+    "after:bump":            npm run clean && npm run build && nova extension validate Stylelint.novaextension
+    "before:github:release": bin/pack.sh ${version}
+    "after:release":         nova extension publish Stylelint.novaextension --no-confirm
 
 git:
     requireCleanWorkingDir: false

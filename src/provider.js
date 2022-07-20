@@ -98,10 +98,10 @@ class IssuesProvider {
     // such a method, but there's nothing similar if using a full-on Issue Assistant
     // registered with the global `AssistantsRegistry` object.
     resetIssues(...syntaxes) {
-        syntaxes = syntaxes.length > 0 ? syntaxes : this.langsAvail;
+        syntaxes = syntaxes.length > 0 ? new Set(syntaxes) : this.langsAvail;
 
         const editors = nova.workspace.textEditors
-            .filter(editor => syntaxes.includes(editor.document.syntax));
+            .filter(editor => syntaxes.has(editor.document.syntax));
 
         for ( const editor of editors ) {
             const wasClean = ! editor.document.isDirty;
