@@ -1,7 +1,26 @@
 # Nova Stylelint Changelog
 I'll try to keep up with documenting changes here in this file.
 
-## 1.1.0
+## v2.0.0
+`July 19, 2022`
+
+### Added
+- Options to individually enable/disable linting of file types other than plain CSS
+- Local workspace configuration options mirroring global preferences
+- Workspace-specific option to disable extension in current project
+
+### Fixed
+- Inability to discover and prefer locally installed Stylelint package, in some cases
+- Inconsistent module resolution and error reporting in deeply nested projects [#2](https://github.com/nlydv/nova-stylelint/issues/2)
+- Built-in stylelint executable not usable as final fallback
+- Path type user configs no longer working with `~/` prefixed inputs
+
+### Changed
+- Upgrade inline issue "squigglies" to extend under applicable text range rather than only at discrete points
+- More robust module resolution, error handling, and information feedback
+- Improvements in performance/speed
+
+## v1.1.0
 `April 14, 2022`
 
 ### Added
@@ -12,15 +31,18 @@ I'll try to keep up with documenting changes here in this file.
 - Sporadic/jittery behavior on activation & initial install
 
 ### Changed
-- `fallback.behavior` options from `[none|ignore]` to `[loud|quiet|silent]`
+- Config not found behavior options from `[none|ignore]` to `[loud|quiet|silent]`
 - More contextualized & actionable `stylelintrc` error information
 - Much better UX in general when passing errors/alerts to user
 - Updated extension icon
 
-## 1.0.4
-Bump to fix in-app icon display
+## v1.0.4
+`March 30, 2022`
 
-## 1.0.3
+### Changed
+- Bump version only to push fix for in-app icon display
+
+## v1.0.3
 `March 30, 2022`
 
 ### Fixed
@@ -30,24 +52,23 @@ Bump to fix in-app icon display
 ### Changed
 - Updated README & added preview image
 - Nicer extension icon image
-- Refactoring
 
-## 1.0.2
+## v1.0.2
 `March 28, 2022`
 
 ### Fixed
-- Hotfix
+- Hotfix to patch self-thrown error not being caught as intended
 
-## 1.0.1
+## v1.0.1
 `March 28, 2022`
 
 ### Fixed
-- Bug that regards `.stylelintrc*` files as non-existent if it's unable to resolve plugins/extends rules therein [#1](https://github.com/nlydv/nova-stylelint/issues/1)
+- Bug where `.stylelintrc*` files are seen as non-existent when unable to resolve external modules defined therein [#1](https://github.com/nlydv/nova-stylelint/issues/1)
 
-### Changes
+### Changed
 - Minor optimizations around fallbacks and internal discovery
 
-## 1.0.0
+## v1.0.0
 `March 23, 2022`
 
 ### Added
@@ -55,6 +76,3 @@ Bump to fix in-app icon display
 
 ### Fixed
 - Nothing
-
-### Changes
-- Created
