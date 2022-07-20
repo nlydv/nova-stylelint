@@ -15,46 +15,59 @@
  *
  */
 
+const batteries = require("./batteries");
 const IssuesProvider = require("./provider");
 
+
 const composite = new CompositeDisposable();
+const provider = new IssuesProvider();
 
 async function activate() {
-    const issuesProvider = new IssuesProvider;
+    // This is to avoid premature execution and naively throwing around promises
+    // that resulted in jittery and often unpredictable behavior previously.
+    provider.hasLiveBatteries = await batteries.kickstart();
 
-    const provider = nova.assistants.registerIssueAssistant(
-        issuesProvider.syntaxes,
-        issuesProvider,
+    const assistant = nova.assistants.registerIssueAssistant(
+        [...provider.langsAvail],
+        provider,
         { event: "onChange" }
     );
 
-    nova.commands.register("lint", editor => {
+    const lint = nova.commands.register("lint", editor => {
         if ( ! TextEditor.isTextEditor(editor) )
             editor = nova.workspace.activeTextEditor;
 
-        const lintCmd = issuesProvider.provideIssues(editor);
-        composite.add(lintCmd);
+        provider.provideIssues(editor);
     });
 
-    nova.commands.register("lintFix", editor => {
+    const lintFix = nova.commands.register("lintFix", editor => {
         if ( ! TextEditor.isTextEditor(editor) )
             editor = nova.workspace.activeTextEditor;
 
-        const fixCmd = issuesProvider.fixIssues(editor);
-        composite.add(fixCmd);
+        provider.fixIssues(editor);
     });
 
-    composite.add(provider);
+    const resetIssues = nova.commands.register("resetIssues", provider.resetIssues);
+
+    composite.add(lint);
+    composite.add(lintFix);
+    composite.add(resetIssues);
+    composite.add(assistant);
+
     console.log("Stylelint extension for Nova has activated.");
 }
 
 function deactivate() {
+    // Curious as to what exactly "disposal" means for Nova... e.g. here we're disposing
+    // issue assistant's disposable properties before disposing issue assistant itself,
+    // which is logical enough, but would it be problematic to do it the other way around?
+    provider.listeners.dispose();
     composite.dispose();
+
     console.log("Stylelint extension for Nova has deactivated.");
 }
 
 module.exports = {
     activate,
-    deactivate,
-    IssuesProvider
+    deactivate
 };

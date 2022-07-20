@@ -6,3 +6,7 @@ node_modules
 *.novaextension/*.md
 bin/*.tar.xz
 .env
+.nova/*
+!.nova/Tasks
+!.nova/Tasks/*
+!.nova/Configuration.json

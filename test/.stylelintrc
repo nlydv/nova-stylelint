@@ -2,7 +2,6 @@
 extends: stylelint-config-standard
 
 ignoreFiles:
-  - "**/*.less"
   - "**/node_modules/*"
   - "**/vendor/*"
   - "**/icon/*"
@@ -56,6 +55,10 @@ rules:
           - after-comment
           - inside-block
 
+    length-zero-no-unit:
+      - true
+      - severity: warn
+
     # Preferred notation rules
     alpha-value-notation: percentage
     color-function-notation: modern
@@ -81,11 +84,14 @@ rules:
     selector-list-comma-space-before:          never
     selector-list-comma-space-after:           always-single-line
     selector-list-comma-newline-before:        never-multi-line
-    selector-list-comma-newline-after:         always-multi-line
+    selector-list-comma-newline-after:
+      - always-multi-line
+      - severity: warn
     selector-combinator-space-before:          always
     selector-combinator-space-after:           always
 
     # Other rules
+    color-no-invalid-hex:                      true
     color-hex-case:                            upper
     color-hex-length:                          long
     at-rule-no-unknown:                        true
@@ -218,3 +224,15 @@ overrides:
             ignore:
               - after-comment
               - inside-block
+
+
+# ————————————————————————————————————————————————————————————————————————— #
+
+  # Plug in customSyntax module in order to lint CSS embedded in HTML
+
+# ————————————————————————————————————————————————————————————————————————— #
+
+  - files:
+      - "/**/*.html"
+
+    customSyntax: postcss-html

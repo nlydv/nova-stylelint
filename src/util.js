@@ -1,5 +1,6 @@
 const batteries = require("./batteries");
 
+
 function alert(message, alt = null) {
     if ( alt ) {
         nova.workspace.showActionPanel(
@@ -28,66 +29,103 @@ function notify(id, msg, type = null) {
 }
 
 function getPrefs() {
-    const prefs = { exec: {}, fallback: {}, cache: {} };
+    const inheritGlobal = nova.workspace.config.get("com.neelyadav.Stylelint.local.inherit");
 
-    const val = key => {
-        let pref = nova.config.get(`com.neelyadav.Stylelint.${key}`);
-        if ( key.endsWith(".path") || key === "basedir" )
-            // Rollup didn't like this `&&=` wizardry (mdn ref: https://t.ly/53kW)
-            // pref &&= nova.path.normalize(pref);
-            pref && (pref = nova.path.normalize(pref));
+    // @TODO change following key names so all path args end in ".path"
+    const pathKeys = [ "basedir", "fallback.custom" ];
+
+    function val(key) {
+        const fullKey = `com.neelyadav.Stylelint.${key}`;
+
+        let pref = (
+            inheritGlobal
+                ? nova.config.get(fullKey)
+                : nova.workspace.config.get(fullKey)
+                    ?? nova.config.get(fullKey)
+        );
+
+        if ( key.endsWith(".path") || pathKeys.includes(key) )
+            pref &&= nova.path.normalize(pref);
 
         return pref;
+    }
+
+    const prefs = {
+        /** @param {Set} avail */
+        getLangs: avail => {
+            const enabled = new Set().add("css");
+            for ( const name of avail ) val(`lang.${name}`) && enabled.add(name);
+            return enabled;
+        },
+        exec: {
+            custom: val("exec.custom"),
+            path: val("exec.path")
+        },
+        fallback: {
+            behavior: val("fallback.behavior"),
+            custom: val("fallback.custom")
+        },
+        cache: {
+            on: val("cache.on"),
+            path: val("cache.path")
+        },
+        basedir: val("basedir")
     };
 
-    // @TODO change 'basedir' to 'basedir.path' so all path args have '.path' ending
-
-    prefs.exec.custom       = val("exec.custom");
-    prefs.exec.path         = val("exec.path");
-    prefs.fallback.behavior = val("fallback.behavior");
-    prefs.fallback.custom   = val("fallback.custom");
-    prefs.basedir           = val("basedir");
-    prefs.cache.on          = val("cache.on");
-    prefs.cache.path        = val("cache.path");
-
-    prefs.stylelint =
+    prefs.stylelint = (
         prefs.exec.custom
             ? ( prefs.exec.path ?? "stylelint" )
-            : "stylelint";
+            : "stylelint"
+    );
 
     return prefs;
 }
 
-const relPath = path => nova.workspace.relativizePath(path);
-
-// workaround to get open workspace root, if any, since `nova.workspace.path` doesn't seem to work
-function workspacePath() {
-    try {
-        const active = nova.workspace.activeTextEditor?.document.path;
-        if ( active ) return active.split(relPath(active))[0].slice(0, -1);
-        else          return null;
-    } catch (e) {
-        return null;
-    }
+function relPath(path) {
+    return nova.workspace.relativizePath(path);
 }
 
-function newPath() {
-    const prefs = getPrefs();
-    const env = nova.environment.PATH;
+async function newPath(cwd = null) {
+    let newPath = [ nova.environment.PATH, batteries.bin ];
 
-    const workspace      = workspacePath();
-    const localBin       = nova.path.join(workspace, "node_modules/.bin");
-    const localLinter    = nova.path.join(localBin, "stylelint");
-    const hasLocalLinter = nova.fs.access(localLinter, nova.fs.X_OK);
+    if ( ! cwd ) return newPath.join(":");
 
-    let newPath = [ localBin, env, batteries.dir ];
-    if ( ! hasLocalLinter ) newPath.shift();
+    const opt = {
+        args: [ "bin" ],
+        cwd: cwd,
+        env: nova.environment,
+        stdio: "pipe",
+        shell: "/bin/bash"
+    };
+
+    const npxDir = await new Promise((resolve, reject) => {
+        let stdout = "";
+        let stderr = "";
+        const proc = new Process("npm", opt);
+        proc.onStdout(line => stdout += line.trim());
+        proc.onStderr(line => stderr += line);
+        proc.onDidExit(status => {
+            if ( stderr ) console.error(stderr);
+            status === 0 ? resolve(stdout) : resolve(null);
+        });
+        proc.start();
+    });
+
+    const hasLocalLinter = (
+        npxDir
+            ? nova.fs.access(nova.path.join(npxDir, "stylelint"), nova.fs.X_OK)
+            : false
+    );
+
+    if ( hasLocalLinter ) newPath.unshift(npxDir);
 
     return newPath.join(":");
 }
 
-async function runProc(command, dir = null, log = false) {
-    command = command.split(" ");
+async function runProc(dir, ...command) {
+    if ( command.every(c => c instanceof Array) )
+        command = command.flat();
+
     const [ cmd, args ] = [ command.shift(), command ];
 
     const opt = {
@@ -98,9 +136,9 @@ async function runProc(command, dir = null, log = false) {
         shell: "/bin/bash"
     };
 
-    opt.env.PATH = newPath();
+    opt.env.PATH = await newPath(opt.cwd);
 
-    const proc = new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
         let stdout = "";
         let stderr = "";
 
@@ -113,12 +151,16 @@ async function runProc(command, dir = null, log = false) {
 
         proc.onStdout(line => stdout += line);
         proc.onStderr(line => stderr += line);
-        proc.onDidExit(status => status === 0 ? resolve(stdout) : reject(stderr));
+        proc.onDidExit(status => {
+            // For debugging purposes
+            if ( nova.inDevMode() )
+                console.log(`Path: ${opt.env.PATH}\nFrom: ${opt.cwd}\nCmd:  ${cmd} ${opt.args.join(" ")}`);
+
+            status === 0 ? resolve(stdout) : reject(stderr);
+        });
 
         proc.start();
     });
-
-    return await proc;
 }
 
 module.exports = {
@@ -127,6 +169,5 @@ module.exports = {
     getPrefs,
     runProc,
     relPath,
-    workspacePath,
     newPath
 };

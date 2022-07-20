@@ -2,9 +2,6 @@
 
 echo ""
 
-npm run clean
-npm run build
-
 if [[ $# -ne 1 ]]; then
     echo "One argument required: version being released"
     exit 1

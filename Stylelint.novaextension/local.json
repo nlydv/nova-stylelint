@@ -1,0 +1,109 @@
+[
+    {
+        "title": "Workspace",
+        "type": "section",
+        "children": [
+            {
+                "key": "com.neelyadav.Stylelint.local.disable",
+                "title": "Disable Stylelint",
+                "description": "Turns off linting of stylesheet files in this workspace only.",
+                "type": "boolean",
+                "default": false
+            },
+            {
+                "key": "com.neelyadav.Stylelint.local.inherit",
+                "title": "Inherit global preferences",
+                "description": "When enabled, the local workspace preferences below are ignored in favor of the global extension preferences.",
+                "type": "boolean",
+                "command": false
+            }
+        ]
+    },
+    {
+        "title": "Languages",
+        "description": "Select additional file types to lint (plain CSS is always enabled by default).\nNote: using Stylelint on non-CSS files requires installing and configuring extra plugins and/or custom syntax modules.",
+        "link": "https://stylelint.io/migration-guide/to-14",
+        "type": "section",
+        "children": [
+            {
+                "key": "com.neelyadav.Stylelint.lang.scss",
+                "title": "SCSS",
+                "type": "boolean",
+                "default": true
+            },
+            {
+                "key": "com.neelyadav.Stylelint.lang.sass",
+                "title": "Sass",
+                "type": "boolean",
+                "default": true
+            },
+            {
+                "key": "com.neelyadav.Stylelint.lang.less",
+                "title": "Less",
+                "type": "boolean",
+                "default": false
+            }
+        ]
+    },
+    {
+        "title": "Executable",
+        "type": "section",
+        "children": [
+            {
+                "key": "com.neelyadav.Stylelint.exec.custom",
+                "title": "Use specific Stylelint executable",
+                "description": "If enabled, the path to Stylelint set below will always be used instead of finding a preferred executable location.",
+                "type": "boolean"
+            },
+            {
+                "key": "com.neelyadav.Stylelint.exec.path",
+                "title": "Absolute Stylelint path",
+                "description": "Ignored when above option is disabled.",
+                "type": "path",
+                "placeholder": "~/Developer/node_modules/.bin/stylelint"
+            }
+        ]
+    },
+    {
+        "title": "Configuration",
+        "type": "section",
+        "children": [
+            {
+                "key": "com.neelyadav.Stylelint.fallback.behavior",
+                "title": "Config file not found behavior",
+                "type": "enum",
+                "radio": true,
+                "values": [
+                    [ "loud", "Display error" ],
+                    [ "quiet", "Quiet notification" ],
+                    [ "silent", "Silently abort linting" ],
+                    [ "standard", "Lint with stylelint-config-standard" ],
+                    [ "custom", "Lint with custom config file set below" ]
+                ]
+            },
+            {
+                "key": "com.neelyadav.Stylelint.fallback.custom",
+                "title": "Custom fallback",
+                "description": "Absolute path to a fallback stylelintrc config file.\nCustom fallback behavior only.",
+                "type": "path",
+                "placeholder": "~/Developer/.stylelintrc"
+            }
+        ]
+    },
+    {
+        "title": "Other Options",
+        "type": "section",
+        "children": [
+            {
+                "key": "com.neelyadav.Stylelint.basedir",
+                "title": "Config base directory",
+                "description": "Absolute path to a directory from which to find plugins and extend rules named in Stylelint config.\n(--config-basedir)",
+                "link": "https://stylelint.io/user-guide/usage/cli#--config-basedir",
+                "type": "path",
+                "placeholder": "~/Developer",
+                "allowFiles": false,
+                "allowFolders": true
+            }
+        ]
+    }
+]

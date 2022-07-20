@@ -1,9 +1,6 @@
 {
-  "apexskier.eslint.config.eslintConfigPath" : ".eslintrc",
-  "apexskier.eslint.config.eslintPath" : "node_modules\/eslint\/bin\/eslint.js",
-  "apexskier.eslint.config.fixOnSave" : "Inherit from Global Settings",
-  "index.enabled" : false,
-  "workspace.art_style" : 0,
+  "com.neelyadav.mtype.tsPrefs.disableSuggestions" : true,
+  "workspace.art_style" : 1,
   "workspace.color" : 8,
   "workspace.name" : "Nova Stylelint"
 }

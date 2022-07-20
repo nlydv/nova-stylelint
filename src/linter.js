@@ -1,6 +1,7 @@
 const batteries = require("./batteries");
-const { getPrefs, newPath } = require("./util");
 const { rcWizard } = require("./wizard");
+const { alert, getPrefs, newPath } = require("./util");
+
 
 async function execLinter(editor, fix = false) {
     const { document: doc } = editor;
@@ -17,19 +18,19 @@ async function execLinter(editor, fix = false) {
     };
 
     // Prefered executable location via $PATH (unless `exec.custom` is on)
-    opt.env.PATH = newPath();
+    opt.env.PATH = await newPath(opt.cwd);
 
-    // Determine whether to auto-discover config, use specific config, or arbort
-    const rc = await rcWizard(doc.path);
-    if ( ! rc )                    return;
-    else if ( rc === "standard")   opt.args.push("--config", batteries.standard);
-    else if ( rc === "custom" )    opt.args.push("--config", prefs.fallback.custom);
+    // Determine whether to auto-discover config, use specific config, or abort
+    const wiz = await rcWizard(doc.path);
+    if ( ! wiz )                    return;
+    else if ( wiz === "standard" )  opt.args.push("--config", batteries.standard);
+    else if ( wiz === "custom" )    opt.args.push("--config", prefs.fallback.custom);
 
     // Use pre-packaged "batteries" as basedir if needed otherwise use user-configured dir
-    if ( prefs.basedir )           opt.args.push("--config-basedir", prefs.basedir);
-    else if ( rc === "batteries" ) opt.args.push("--config-basedir", batteries.dir);
+    if ( prefs.basedir )            opt.args.push("--config-basedir", prefs.basedir);
+    else if ( wiz === "batteries" ) opt.args.push("--config-basedir", batteries.dir);
 
-    // When running fix command
+    // When running "lintFix" command
     if ( fix ) opt.args.push("--fix");
 
     /* —————————————————————————————————————————————————————————————————— */
@@ -62,11 +63,29 @@ async function execLinter(editor, fix = false) {
 
         // For debugging purposes
         if ( nova.inDevMode() )
-            console.log(`From: ${process.cwd}\nCmd:  ${process.args.slice(1).map(i => i.replace(/"/g, "")).join(" ")}`);
+            console.log(`Path: ${opt.env.PATH}\nFrom: ${process.cwd}\nCmd:  ${process.args.slice(1).map(i => i.replace(/"/g, "")).join(" ")}`);
     });
 
-    if ( fix ) return await linter;
-    else       return JSON.parse(await linter);
+    const result = await linter.catch(e => handleError(e, doc.path));
+
+    return ( fix ? result : JSON.parse(result) );
+}
+
+function handleError(err, file = null) {
+    const stderr = err.split("\n");
+    if ( stderr[0].includes("Cannot resolve custom syntax module") ) {
+        const msg = stderr[0].split("Error: ")[1];
+        const note = "Note: Unlike regular plugins, Stylelint requires PostCSS custom syntax modules to be installed in the same location as Stylelint itself.";
+
+        // @TODO: refactor out messages
+        let formatted = `Custom Syntax Resolution Error\n\n${msg}\n\n${note}`;
+
+        console.error(formatted);
+        alert(formatted);
+        return null;
+    } else {
+        throw err;
+    }
 }
 
 /* —————————————————————————————————————————————————————————————————— */

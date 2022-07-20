@@ -20,6 +20,10 @@ module.exports = [
             "stylelint",
             "stylelint-config-standard",
             "stylelint-scss"
-        ]
+        ],
+
+        acorn: {
+            ecmaVersion: "2021"
+        }
     }
 ];
