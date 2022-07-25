@@ -38,7 +38,10 @@ class IssuesProvider {
 
         return execLinter(editor, fix).catch(err => {
             console.error(err);
-            alert(`Uncaught Error\n\n${err.name}:\n${err.message}`, "Report");
+            if ( err instanceof Error )
+                alert(`Uncaught Error\n\n${err.name}:\n${err.message}`, "Report");
+            else
+                alert(`Uncaught Error\n\n${err.split("\n")[0].split("Error: ")[1]}`, "Report");
         });
     }
 
