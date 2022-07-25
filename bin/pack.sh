@@ -10,8 +10,10 @@ fi
 UNPACKED=Stylelint.novaextension
 ARCHIVED=bin/${UNPACKED}-v${1}.tar.xz
 
-[[ -e $ARCHIVED ]] && rm $ARCHIVED
-tar -cJf $ARCHIVED $UNPACKED
+[[ -e "$ARCHIVED" ]] && rm "bin/${UNPACKED}-v${1}.*"
+tar -cJf "$ARCHIVED" "$UNPACKED"
 
-echo ""
+SIZE="$(du -hA "$ARCHIVED" | sed -E 's/(.*)\t.*/\1/')"
+
+echo "Packaged release v$1 size: $SIZE"
 exit 0
