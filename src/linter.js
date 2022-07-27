@@ -68,10 +68,11 @@ async function execLinter(editor, fix = false) {
 
     const result = await linter.catch(e => handleError(e, doc.path));
 
-    return ( fix ? result : JSON.parse(result) );
+    return ( result instanceof Issue || fix ? result : JSON.parse(result) );
 }
 
 function handleError(err, file = null) {
+    /** @type {String} stderr */
     const stderr = err.split("\n");
     if ( stderr[0].includes("Cannot resolve custom syntax module") ) {
         const msg = stderr[0].split("Error: ")[1];
@@ -84,7 +85,29 @@ function handleError(err, file = null) {
         alert(formatted);
         return null;
     } else {
-        throw err;
+        // Checks if first line of stack trace mentions the path of the file we just
+        // now tried to lint and extracts the line/column error location if it does.
+        const issuable = new RegExp(`${file}:(\\d+):(\\d+)$`).exec(stderr[1]);
+
+        // Although that caught error was thrown from Stylelint as a "fatal" exception...
+        // better to just parse and return it as a distinct "meta issue" when possible
+        // rather than disrupting user with "Uncaught Error" popup alerts.
+        // NOTE: Apparently these kinds of errors are *sometimes* not thrown but are
+        // instead returned in the parseErrors property of Stylelint results object.
+        if ( issuable ) {
+            const issue = new Issue();
+            issue.source = "Stylelint";
+            issue.code = "Linter Error";
+            issue.message = stderr[0].split("Error: ")[1];
+            issue.severity = IssueSeverity.Hint;
+            issue.line = issuable[1];
+            issue.column = issuable[2];
+            issue.endLine = issuable[1] + 1;
+            issue.endColumn = 0;
+            return issue;
+        } else {
+            throw err;
+        }
     }
 }
 

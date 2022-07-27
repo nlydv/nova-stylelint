@@ -64,6 +64,12 @@ class IssuesProvider {
         const issues = [];
         const results = await this.exec(editor);
 
+        // For when execLinter catches, transforms, & returns error as single Issue object directly
+        if ( results instanceof Issue ) {
+            issues.push(results);
+            return issues;
+        }
+
         for ( const r of results ) {
             for ( const w of r.warnings ) {
                 const issue = new Issue();
@@ -76,6 +82,33 @@ class IssuesProvider {
                 issue.endLine = w.endLine;
                 issue.endColumn = w.endColumn;
 
+                // Separate out "meta issues" from normal linting results
+                if ( w.text.startsWith(`Unknown rule ${w.rule}`) ) {
+                    issue.code = "Config Error";
+                    issue.severity = IssueSeverity.Hint;
+                    issue.line = 1;
+                    issue.column = 1;
+                    issue.endLine = 2;
+                    issue.endColumn = 0;
+                }
+
+                issues.push(issue);
+            }
+
+            // Stylelint sometimes catches meta issues internally (not always though)
+            // ...sometimes it'll return duplicate parseErrors, so first dedupe them:
+            r.parseErrors = [...new Set(r.parseErrors.map(i => JSON.stringify(i)))].map(i => JSON.parse(i));
+
+            for ( const p of r.parseErrors ) {
+                const issue = new Issue();
+                issue.source = "Stylelint";
+                issue.code = "Parse Error";
+                issue.message = /\((?:.*Error: )?(.*)\)$/.exec(p.text)[1];
+                issue.severity = IssueSeverity.Hint;
+                issue.line = p.line;
+                issue.column = p.column;
+                issue.endLine = p.endLine;
+                issue.endColumn = p.endColumn;
                 issues.push(issue);
             }
         }
