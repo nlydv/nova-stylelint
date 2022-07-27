@@ -31,10 +31,10 @@
         "@rollup/plugin-json": "4.1.0",
         "@rollup/plugin-node-resolve": "7.0.0",
         "@types/nova-editor-node": "^4.1.4",
-        "eslint": "^8.19.0",
+        "eslint": "^8.20.0",
         "eslint-plugin-nova": "^1.7.0",
         "onchange": "^7.1.0",
-        "release-it": "^14.14.3",
+        "release-it": "^15.2.0",
         "rollup": "1.30.1"
     }
 }
