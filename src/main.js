@@ -2,7 +2,7 @@
  * Copyright © 2022 Neel Yadav
  * MIT License
  *
- *     Nova Stylelint (v2.0.0)
+ *     Nova Stylelint (v2.0.1)
  *
  *     Stylelint extension for Nova, a new macOS-native code
  *     editor from Panic. Presents real-time stylesheet linting

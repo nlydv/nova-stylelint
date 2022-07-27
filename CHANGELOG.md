@@ -1,6 +1,15 @@
 # Nova Stylelint Changelog
 I'll try to keep up with documenting changes here in this file.
 
+## v2.0.1
+`July 26, 2022`
+
+### Fixed
+- Useless popup alerts for uncaught errors reading `undefined undefined`
+
+### Changed
+- Catch, parse, and display certain "meta issues" such as parsing, syntax, and config errors
+
 ## v2.0.0
 `July 19, 2022`
 
