@@ -1,6 +1,13 @@
 # Nova Stylelint Changelog
 I'll try to keep up with documenting changes here in this file.
 
+## v2.0.2
+`August 31, 2022` 🥳
+
+### Fixed
+- Fix unsurfaced runtime issues that could effectively disable linting until fixed
+    - Now parses and displays additional “meta” Stylelint warnings/errors, including warnings for deprecated rules, invalid options for rules, and other config-related errors.
+
 ## v2.0.1
 `July 26, 2022`
 

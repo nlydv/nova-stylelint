@@ -19,7 +19,7 @@
 
 The only requirement to being able to use this extension is having Node.js installed on your system.
 
-If you don't already have Node.js installed, the quickest way to get up and running is to install Stylelint through [Homebrew](https://brew.sh):
+If you don't already have Node.js installed, the quickest way to get up and running is to install it through [Homebrew](https://brew.sh):
 ```
 brew install node
 ```

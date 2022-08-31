@@ -3,7 +3,7 @@
     "name": "Stylelint",
     "organization": "Neel Yadav",
     "identifier": "com.neelyadav.stylelint",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "description": "Stylelint extension for Nova's built-in issue provider system.",
     "license": "MIT",
     "categories": [
