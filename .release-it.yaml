@@ -33,7 +33,7 @@ github:
     release:      true
     releaseName:  v${version}
     releaseNotes: bin/notes.sh ${latestVersion} ${version}
-    assets:       bin/Stylelint.novaextension-v${version}.tar.gz
+    assets:       bin/Stylelint.novaextension-v${version}.tar.xz
     tokenRef:     RELEASE_IT
 
 npm:

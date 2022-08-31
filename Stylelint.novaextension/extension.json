@@ -1,4 +1,5 @@
 {
+    "$schema": "./nova-extension-schema.json",
     "name": "Stylelint",
     "organization": "Neel Yadav",
     "identifier": "com.neelyadav.stylelint",
@@ -18,9 +19,14 @@
 
     "activationEvents": [
         "onLanguage:css",
+        "onLanguage:cssplus",
         "onLanguage:scss",
+        "onLanguage:scssplus",
         "onLanguage:sass",
         "onLanguage:less",
+        "onLanguage:html",
+        "onLanguage:php",
+        "onLanguage:advphp",
         "onWorkspaceContains:.stylelintrc",
         "onWorkspaceContains:.stylelintrc.js",
         "onWorkspaceContains:.stylelintrc.json",
@@ -37,7 +43,7 @@
                 "command": "lint",
                 "when": "editorHasFocus && documentHasPath",
                 "filters": {
-                    "syntaxes": [ "css", "scss", "sass", "less"  ]
+                    "syntaxes": [ "css", "cssplus", "scss", "scssplus", "sass", "less", "html", "php", "advphp" ]
                 }
             },
             {
@@ -45,7 +51,7 @@
                 "command": "lintFix",
                 "when": "editorHasFocus && documentHasPath",
                 "filters": {
-                    "syntaxes": [ "css", "scss", "sass", "less"  ]
+                    "syntaxes": [ "css", "cssplus", "scss", "scssplus", "sass", "less", "html", "php", "advphp" ]
                 }
             }
         ]

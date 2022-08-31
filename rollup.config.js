@@ -1,29 +1,29 @@
 const commonjs = require("@rollup/plugin-commonjs");
 const resolve = require("@rollup/plugin-node-resolve");
-const json = require("@rollup/plugin-json");
 
-module.exports = [
-    {
-        input: "src/main.js",
+/** @type {import("rollup").RollupOptions} */
+const config = {
+    input: "src/main.js",
 
-        plugins: [
-            commonjs(),
-            resolve()
-        ],
+    plugins: [
+        commonjs(),
+        resolve()
+    ],
 
-        output: {
-            file: "Stylelint.novaextension/Scripts/main.dist.js",
-            format: "cjs"
-        },
+    output: {
+        file: "Stylelint.novaextension/Scripts/main.dist.js",
+        format: "cjs"
+    },
 
-        external: [
-            "stylelint",
-            "stylelint-config-standard",
-            "stylelint-scss"
-        ],
+    external: [
+        "stylelint",
+        "stylelint-config-standard",
+        "stylelint-scss"
+    ],
 
-        acorn: {
-            ecmaVersion: "2021"
-        }
+    acorn: {
+        ecmaVersion: "2022"
     }
-];
+};
+
+module.exports = config;

@@ -51,9 +51,12 @@ function getPrefs() {
     }
 
     const prefs = {
-        /** @param {Set} avail */
+        /**
+         * @param {Set<string>} avail
+         * @returns {Set<string>}
+         */
         getLangs: avail => {
-            const enabled = new Set().add("css");
+            const enabled = new Set().add("css").add("cssplus");
             for ( const name of avail ) val(`lang.${name}`) && enabled.add(name);
             return enabled;
         },

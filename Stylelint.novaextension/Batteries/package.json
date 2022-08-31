@@ -7,12 +7,12 @@
         "postcss-sass": "^0.5.0",
         "postcss-scss": "^4.0.4",
         "stylelint-config-html": "^1.1.0",
-        "stylelint-config-standard": "^26.0.0",
+        "stylelint-config-standard": "^28.0.0",
         "stylelint-config-standard-scss": "^5.0.0",
         "stylelint-scss": "^4.3.0"
     },
     "peerDependencies": {
-        "postcss": ">=8.4.0",
+        "postcss": "^8.4.0",
         "stylelint": "^14.9.1"
     }
 }

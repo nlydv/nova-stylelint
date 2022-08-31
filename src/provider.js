@@ -3,15 +3,19 @@ const execLinter = require("./linter");
 const { alert, getPrefs } = require("./util");
 
 
+// @TODO convert properties in constructor to class fields; switch to ESM; config latest Rollup
 class IssuesProvider {
     constructor() {
-        this.langsAvail = new Set(["css", "scss", "sass", "less", "html", "php"]);
+        this.id = "com.neelyadav.Stylelint";
+        /** @type {Set<string>} */
+        this.langsAvail = new Set(["css", "scss", "sass", "less", "html", "php", "cssplus", "scssplus", "advphp"]);
+        /** @type {Set<string>} */
         this.langsEnabled = getPrefs().getLangs(this.langsAvail);
 
         this.hasLiveBatteries = false;
         this.listeners = new CompositeDisposable();
 
-        const disableKey = "com.neelyadav.Stylelint.local.disable";
+        const disableKey = `${this.id}.local.disable`;
         this.isDisabled = nova.workspace.config.get(disableKey);
         this.listeners.add(
             nova.workspace.config.onDidChange(disableKey, newValue => {
@@ -21,14 +25,14 @@ class IssuesProvider {
         );
 
         for ( const lang of this.langsAvail ) {
-            const key = `com.neelyadav.Stylelint.lang.${lang}`;
+            const langKey = `${this.id}.lang.${lang}`;
             const flipper = bool => {
                 bool ? this.langsEnabled.add(lang) : this.langsEnabled.delete(lang);
                 this.resetIssues(lang);
             };
 
-            this.listeners.add(nova.config.onDidChange(key, flipper));
-            this.listeners.add(nova.workspace.config.onDidChange(key,flipper));
+            this.listeners.add(nova.config.onDidChange(langKey, flipper));
+            this.listeners.add(nova.workspace.config.onDidChange(langKey, flipper));
         }
     }
 
@@ -70,7 +74,52 @@ class IssuesProvider {
             return issues;
         }
 
+        // @TODO create utility function(s) that create/configure Issue objects & props, make this more DRY
+
         for ( const r of results ) {
+            // Stylelint sometimes catches parsing errors internally and returns them in the
+            // `.parseErrors` array, but sometimes it'll return duplicates, so first dedupe them:
+            r.parseErrors = [...new Set(r.parseErrors.map(i => JSON.stringify(i)))].map(i => JSON.parse(i));
+
+            for ( const p of r.parseErrors ) {
+                const issue = new Issue();
+                issue.source = "Stylelint";
+                issue.code = "Parse Error";
+                issue.message = /\((?:.*Error: )?(.*)\)$/.exec(p.text)[1];
+                issue.severity = IssueSeverity.Hint;
+                issue.line = p.line;
+                issue.column = p.column;
+                issue.endLine = p.endLine;
+                issue.endColumn = p.endColumn;
+                issues.push(issue);
+            }
+
+            for ( const d of r.deprecations ) {
+                const issue = new Issue();
+                issue.source = "Stylelint";
+                issue.code = "Deprecated Rule";
+                issue.message = `${d.text} See: ${d.reference}`;
+                issue.severity = IssueSeverity.Hint;
+                issue.line = 1;
+                issue.column = 1;
+                issue.endLine = 2;
+                issue.endColumn = 0;
+                issues.push(issue);
+            }
+
+            for ( const i of r.invalidOptionWarnings ) {
+                const issue = new Issue();
+                issue.source = "Stylelint";
+                issue.code = "Config Error";
+                issue.message = `${i.text}`;
+                issue.severity = IssueSeverity.Hint;
+                issue.line = 1;
+                issue.column = 1;
+                issue.endLine = 2;
+                issue.endColumn = 0;
+                issues.push(issue);
+            }
+
             for ( const w of r.warnings ) {
                 const issue = new Issue();
                 issue.source = "Stylelint";
@@ -85,6 +134,7 @@ class IssuesProvider {
                 // Separate out "meta issues" from normal linting results
                 if ( w.text.startsWith(`Unknown rule ${w.rule}`) ) {
                     issue.code = "Config Error";
+                    issue.message = `Unknown rule: ${w.rule}`;
                     issue.severity = IssueSeverity.Hint;
                     issue.line = 1;
                     issue.column = 1;
@@ -92,23 +142,6 @@ class IssuesProvider {
                     issue.endColumn = 0;
                 }
 
-                issues.push(issue);
-            }
-
-            // Stylelint sometimes catches meta issues internally (not always though)
-            // ...sometimes it'll return duplicate parseErrors, so first dedupe them:
-            r.parseErrors = [...new Set(r.parseErrors.map(i => JSON.stringify(i)))].map(i => JSON.parse(i));
-
-            for ( const p of r.parseErrors ) {
-                const issue = new Issue();
-                issue.source = "Stylelint";
-                issue.code = "Parse Error";
-                issue.message = /\((?:.*Error: )?(.*)\)$/.exec(p.text)[1];
-                issue.severity = IssueSeverity.Hint;
-                issue.line = p.line;
-                issue.column = p.column;
-                issue.endLine = p.endLine;
-                issue.endColumn = p.endColumn;
                 issues.push(issue);
             }
         }
