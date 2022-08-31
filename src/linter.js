@@ -3,6 +3,7 @@ const { rcWizard } = require("./wizard");
 const { alert, getPrefs, newPath } = require("./util");
 
 
+/** @param {TextEditor} editor */
 async function execLinter(editor, fix = false) {
     const { document: doc } = editor;
     const prefs = getPrefs();
