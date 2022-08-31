@@ -3,15 +3,19 @@ const execLinter = require("./linter");
 const { alert, getPrefs } = require("./util");
 
 
+// @TODO convert properties in constructor to class fields; switch to ESM; config latest Rollup
 class IssuesProvider {
     constructor() {
-        this.langsAvail = new Set(["css", "scss", "sass", "less", "html", "php"]);
+        this.id = "com.neelyadav.Stylelint";
+        /** @type {Set<string>} */
+        this.langsAvail = new Set(["css", "scss", "sass", "less", "html", "php", "cssplus", "scssplus", "advphp"]);
+        /** @type {Set<string>} */
         this.langsEnabled = getPrefs().getLangs(this.langsAvail);
 
         this.hasLiveBatteries = false;
         this.listeners = new CompositeDisposable();
 
-        const disableKey = "com.neelyadav.Stylelint.local.disable";
+        const disableKey = `${this.id}.local.disable`;
         this.isDisabled = nova.workspace.config.get(disableKey);
         this.listeners.add(
             nova.workspace.config.onDidChange(disableKey, newValue => {
@@ -21,14 +25,14 @@ class IssuesProvider {
         );
 
         for ( const lang of this.langsAvail ) {
-            const key = `com.neelyadav.Stylelint.lang.${lang}`;
+            const langKey = `${this.id}.lang.${lang}`;
             const flipper = bool => {
                 bool ? this.langsEnabled.add(lang) : this.langsEnabled.delete(lang);
                 this.resetIssues(lang);
             };
 
-            this.listeners.add(nova.config.onDidChange(key, flipper));
-            this.listeners.add(nova.workspace.config.onDidChange(key,flipper));
+            this.listeners.add(nova.config.onDidChange(langKey, flipper));
+            this.listeners.add(nova.workspace.config.onDidChange(langKey, flipper));
         }
     }
 
