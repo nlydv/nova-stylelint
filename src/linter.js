@@ -6,13 +6,19 @@ const { alert, getPrefs, newPath } = require("./util");
 /** @param {TextEditor} editor */
 async function execLinter(editor, fix = false) {
     const { document: doc } = editor;
+
+    // @TODO replace custom syntax parsing once better system implemented
+    const target = doc.isUntitled
+        ? nova.path.join(nova.workspace.path ?? batteries.dir, `untitled.${doc.syntax?.replace("plus", "").replace("adv", "")}`)
+        : doc.path;
+
     const prefs = getPrefs();
 
     /* —————————————————————————————————————————————————————————————————— */
 
     const opt = {
-        args: [ "-f", "json", "--stdin", "--stdin-filename", doc.path ],
-        cwd: nova.path.dirname(doc.path),
+        args: [ "-f", "json", "--stdin", "--stdin-filename", target, "--aei" ],
+        cwd: nova.path.dirname(target),
         env: nova.environment,
         stdio: "pipe",
         shell: "/bin/bash"
@@ -22,7 +28,7 @@ async function execLinter(editor, fix = false) {
     opt.env.PATH = await newPath(opt.cwd);
 
     // Determine whether to auto-discover config, use specific config, or abort
-    const wiz = await rcWizard(doc.path);
+    const wiz = await rcWizard(target);
     if ( ! wiz )                    return;
     else if ( wiz === "standard" )  opt.args.push("--config", batteries.standard);
     else if ( wiz === "custom" )    opt.args.push("--config", prefs.fallback.custom);
@@ -67,7 +73,7 @@ async function execLinter(editor, fix = false) {
             console.log(`Path: ${opt.env.PATH}\nFrom: ${process.cwd}\nCmd:  ${process.args.slice(1).map(i => i.replace(/"/g, "")).join(" ")}`);
     });
 
-    const result = await linter.catch(e => handleError(e, doc.path));
+    const result = await linter.catch(e => handleError(e, target));
 
     return ( result instanceof Issue || fix ? result : JSON.parse(result) );
 }
