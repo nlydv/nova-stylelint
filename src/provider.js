@@ -66,8 +66,9 @@ class IssuesProvider {
             .catch(err => null);
     }
 
+    /** @param {TextEditor} editor */
     async provideIssues(editor) {
-        if ( ! this.hasLiveBatteries || this.isDisabled )
+        if ( ! this.hasLiveBatteries || this.isDisabled || editor.document.isEmpty )
             return [];
 
         const issues = [];
@@ -126,6 +127,9 @@ class IssuesProvider {
             }
 
             for ( const w of r.warnings ) {
+                if ( w.code === "no-empty-source" )
+                    return [];
+
                 const issue = new Issue();
                 issue.source = "Stylelint";
                 issue.code = w.rule;
