@@ -41,11 +41,16 @@ class IssuesProvider {
             return null;
 
         return execLinter(editor, fix).catch(err => {
-            console.error(err);
-            if ( err instanceof Error )
-                alert(`Uncaught Error\n\n${err.name}:\n${err.message}`, "Report");
-            else
+            const seeConsole = "\n\nSee extension console for more info.";
+            if ( err instanceof Error ) {
+                const headline = `${err.name} [uncaught]:\n${err.message}`;
+                const verbose = headline + (err?.stack.split("\n").join("\n    ") ?? "");
+                console.error(verbose);
+                alert(headline + seeConsole, "Report");
+            } else {
+                console.error(err + seeConsole);
                 alert(`Uncaught Error\n\n${err.split("\n")[0].split("Error: ")[1]}`, "Report");
+            }
         });
     }
 
@@ -61,8 +66,9 @@ class IssuesProvider {
             .catch(err => null);
     }
 
+    /** @param {TextEditor} editor */
     async provideIssues(editor) {
-        if ( ! this.hasLiveBatteries || this.isDisabled )
+        if ( ! this.hasLiveBatteries || this.isDisabled || editor.document.isEmpty )
             return [];
 
         const issues = [];
@@ -121,6 +127,9 @@ class IssuesProvider {
             }
 
             for ( const w of r.warnings ) {
+                if ( w.code === "no-empty-source" )
+                    return [];
+
                 const issue = new Issue();
                 issue.source = "Stylelint";
                 issue.code = w.rule;
