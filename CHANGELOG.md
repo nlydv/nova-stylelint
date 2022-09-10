@@ -1,6 +1,16 @@
 # Nova Stylelint Changelog
 I'll try to keep up with documenting changes here in this file.
 
+## v2.0.3
+`September 9, 2022`
+
+### Fixed
+- Uncaught error preventing linting of newly created "untitled" files not yet saved to disk
+
+### Changed
+- Attempt to mitigate what appears to be a bug with Nova's `IssueAssistant` API which can lead to  persistent (until app restart), `no-empty-source` Stylelint warnings on non-empty files in workspace, both in the sidebar and inline.
+- Logging of uncaught error stack traces to console for easier debugging
+
 ## v2.0.2
 `August 31, 2022` 🥳
 
