@@ -4,7 +4,7 @@ const { alert, getPrefs } = require("./util");
 
 
 // @TODO convert properties in constructor to class fields; switch to ESM; config latest Rollup
-class IssuesProvider {
+class StylelintProvider {
     constructor() {
         this.id = "com.neelyadav.Stylelint";
         /** @type {Set<string>} */
@@ -189,4 +189,4 @@ class IssuesProvider {
     }
 }
 
-module.exports = IssuesProvider;
+module.exports = StylelintProvider;

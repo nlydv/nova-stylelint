@@ -1,4 +1,4 @@
-const batteries = require("./batteries");
+// const batteries = require("./batteries");
 
 
 function alert(message, alt = null) {
@@ -89,7 +89,8 @@ function relPath(path) {
 }
 
 async function newPath(cwd = null) {
-    let newPath = [ nova.environment.PATH, batteries.bin ];
+    const batteryBin = nova.path.join(nova.extension.path, "Batteries", "node_modules", ".bin");
+    let newPath = [ nova.environment.PATH, batteryBin ];
 
     if ( ! cwd ) return newPath.join(":");
 

@@ -16,11 +16,11 @@
  */
 
 const batteries = require("./batteries");
-const IssuesProvider = require("./provider");
+const StylelintProvider = require("./provider");
 
 
 const composite = new CompositeDisposable();
-const provider = new IssuesProvider();
+const provider = new StylelintProvider();
 
 async function activate() {
     // This is to avoid premature execution and naively throwing around promises
