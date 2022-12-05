@@ -2,7 +2,6 @@ const batteries = require("./batteries");
 const execLinter = require("./linter");
 const { alert, getPrefs } = require("./util");
 
-
 // @TODO convert properties in constructor to class fields; switch to ESM; config latest Rollup
 class IssuesProvider {
     constructor() {

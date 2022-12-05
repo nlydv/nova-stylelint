@@ -51,6 +51,12 @@
         "type": "section",
         "children": [
             {
+                "key": "com.neelyadav.Stylelint.fixOnSave",
+                "title": "Fix on save",
+                "type": "boolean",
+                "default": null
+            },
+            {
                 "key": "com.neelyadav.Stylelint.fallback.behavior",
                 "title": "Config file not found behavior",
                 "type": "enum",

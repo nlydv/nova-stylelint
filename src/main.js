@@ -17,12 +17,16 @@
 
 const batteries = require("./batteries");
 const IssuesProvider = require("./provider");
-
+const { getPrefs, getFullKey } = require("./util");
 
 const composite = new CompositeDisposable();
+const listeners = new CompositeDisposable();
 const provider = new IssuesProvider();
 
-async function activate() {
+const fixOnSaveKey = getFullKey("fixOnSave");
+const inheritGlobalConfigKey = getFullKey("local.inherit");
+
+async function activater() {
     // This is to avoid premature execution and naively throwing around promises
     // that resulted in jittery and often unpredictable behavior previously.
     provider.hasLiveBatteries = await batteries.kickstart();
@@ -49,12 +53,53 @@ async function activate() {
 
     const resetIssues = nova.commands.register("resetIssues", provider.resetIssues);
 
+    const handleAddTextEditor = editor => {
+        if (!provider.langsAvail.has(editor.document.syntax)) return;
+        const fixOnSave = getPrefs().fixOnSave;
+        if (!fixOnSave) return;
+        listeners.add(
+            editor.onWillSave(editor => {
+                nova.commands.invoke("lintFix", editor);
+            })
+        );
+    };
+
+    const handleConfigChange = () => {
+        listeners.dispose(); // always dispose to prevent overlapping listeners
+        const fixOnSave = getPrefs().fixOnSave;
+
+        if (!fixOnSave) return;
+
+        for (const editor of nova.workspace.textEditors) {
+            if (!provider.langsAvail.has(editor.document.syntax)) continue;
+            listeners.add(
+                editor.onWillSave(editor => {
+                    nova.commands.invoke("lintFix", editor);
+                })
+            );
+        }
+    };
+
     composite.add(lint);
     composite.add(lintFix);
     composite.add(resetIssues);
     composite.add(assistant);
+    composite.add(nova.config.onDidChange(fixOnSaveKey, handleConfigChange));
+    composite.add(nova.workspace.config.onDidChange(fixOnSaveKey, handleConfigChange));
+    composite.add(nova.workspace.config.onDidChange(inheritGlobalConfigKey, handleConfigChange));
+    composite.add(nova.workspace.onDidAddTextEditor(handleAddTextEditor));
+}
 
-    console.log("Stylelint extension for Nova has activated.");
+function activate() {
+    return activater()
+        .catch(err => {
+            console.error("Stylelint extension failed to activate");
+            console.error(err);
+            nova.workspace.showErrorMessage(err);
+        })
+        .then(() => {
+            console.log("Stylelint extension for Nova has activated.");
+        });
 }
 
 function deactivate() {

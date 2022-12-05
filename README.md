@@ -100,7 +100,7 @@ Additionally, while you could technically install any Stylelint-related packages
 
 **□** Configurable delay before execution (on top of built-in)
 
-**□** Autofix on save option
+**✓** Autofix on save option
 
 **□** Task template for build pipelines `??`
 

@@ -13,7 +13,7 @@
             {
                 "key": "com.neelyadav.Stylelint.local.inherit",
                 "title": "Inherit global preferences",
-                "description": "When enabled, the local workspace preferences below are ignored in favor of the global extension preferences.",
+                "description": "When enabled, the local workspace preferences below are ignored in favor of the global extension preferences (with the exception of \"Fix on save\" option which must be set explicitly below).",
                 "type": "boolean",
                 "command": false
             }
@@ -68,6 +68,18 @@
         "title": "Configuration",
         "type": "section",
         "children": [
+            {
+                "key": "com.neelyadav.Stylelint.fixOnSave",
+                "title": "Fix on save",
+                "type": "enum",
+                "radio": true,
+                "values": [
+                    ["null", "Inherit from global preferences"],
+                    ["false", "Disable"],
+                    ["true", "Enable"]
+                ],
+                "default": "null"
+            },
             {
                 "key": "com.neelyadav.Stylelint.fallback.behavior",
                 "title": "Config file not found behavior",

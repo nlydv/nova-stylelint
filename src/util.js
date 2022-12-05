@@ -1,5 +1,5 @@
 const batteries = require("./batteries");
-
+const { preferences } = require("nova-extension-utils");
 
 function alert(message, alt = null) {
     if ( alt ) {
@@ -28,6 +28,10 @@ function notify(id, msg, type = null) {
     nova.notifications.add(notification);
 }
 
+function getFullKey(key) {
+    return `com.neelyadav.Stylelint.${key}`;
+}
+
 function getPrefs() {
     const inheritGlobal = nova.workspace.config.get("com.neelyadav.Stylelint.local.inherit");
 
@@ -35,7 +39,7 @@ function getPrefs() {
     const pathKeys = [ "basedir", "fallback.custom" ];
 
     function val(key) {
-        const fullKey = `com.neelyadav.Stylelint.${key}`;
+        const fullKey = getFullKey(key);
 
         let pref = (
             inheritGlobal
@@ -72,7 +76,11 @@ function getPrefs() {
             on: val("cache.on"),
             path: val("cache.path")
         },
-        basedir: val("basedir")
+        basedir: val("basedir"),
+        // "boolean" type is not nullable, which makes local inheritance of the global value impossible,
+        // so instead we use radio buttons for local config with an explicit inherit option (effectively null)
+        // `preferences.getOverridableBoolean` handles that logic
+        fixOnSave: preferences.getOverridableBoolean(getFullKey("fixOnSave"))
     };
 
     prefs.stylelint = (
@@ -172,5 +180,6 @@ module.exports = {
     getPrefs,
     runProc,
     relPath,
-    newPath
+    newPath,
+    getFullKey
 };
