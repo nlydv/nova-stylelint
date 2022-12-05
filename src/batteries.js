@@ -10,7 +10,7 @@ let linter   = nova.path.join(bin, "stylelint");
 function install() {
     console.log("Waiting for initial extension installation to complete...");
 
-    return runProc(dir, "/usr/bin/env", "npm", "ci")
+    return runProc(dir, "/usr/bin/env", "npm", "ci", "--legacy-peer-deps=false")
         .then(npm => console.log(npm))
         .then(success => console.log("...installed successfully."))
         .then(resolve => true)

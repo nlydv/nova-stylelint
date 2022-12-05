@@ -1,0 +1,25 @@
+Content-Length: 292
+
+{"jsonrpc":"2.0","method":"window/logMessage","params":{"type":3,"message":"[lspserver] Using Typescript version (user-setting) 4.9.3 from path \"/Users/pfricano/Library/Application Support/Nova/Extensions/apexskier.typescript/dependencyManagement/node_modules/typescript/lib/tsserver.js\""}}Content-Length: 1393
+
+{"jsonrpc":"2.0","id":0,"result":{"capabilities":{"textDocumentSync":2,"completionProvider":{"triggerCharacters":[".","\"","'","/","@","<"],"resolveProvider":true},"codeActionProvider":{"codeActionKinds":["source.fixAll.ts","source.removeUnused.ts","source.addMissingImports.ts","source.organizeImports.ts","quickfix","refactor"]},"definitionProvider":true,"documentFormattingProvider":true,"documentRangeFormattingProvider":true,"documentHighlightProvider":true,"documentSymbolProvider":true,"executeCommandProvider":{"commands":["_typescript.applyWorkspaceEdit","_typescript.applyCodeAction","_typescript.applyRefactoring","_typescript.configurePlugin","_typescript.organizeImports","_typescript.applyRenameFile","_typescript.goToSourceDefinition"]},"hoverProvider":true,"inlayHintProvider":true,"renameProvider":true,"referencesProvider":true,"signatureHelpProvider":{"triggerCharacters":["(",",","<"],"retriggerCharacters":[")"]},"workspaceSymbolProvider":true,"implementationProvider":true,"typeDefinitionProvider":true,"foldingRangeProvider":true,"semanticTokensProvider":{"documentSelector":null,"legend":{"tokenTypes":["class","enum","interface","namespace","typeParameter","type","parameter","variable","enumMember","property","function","member"],"tokenModifiers":["declaration","static","async","readonly","defaultLibrary","local"]},"full":true,"range":true},"callsProvider":true}}}Content-Length: 36
+
+{"jsonrpc":"2.0","id":1,"result":[]}Content-Length: 36
+
+{"jsonrpc":"2.0","id":2,"result":[]}Content-Length: 155
+
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"file:///Users/pfricano/Projects/nova-stylelint/src/util.js","diagnostics":[]}}Content-Length: 356
+
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"file:///Users/pfricano/Projects/nova-stylelint/src/util.js","diagnostics":[{"range":{"start":{"line":110,"character":47},"end":{"line":110,"character":53}},"message":"'reject' is declared but its value is never read.","severity":4,"code":6133,"source":"typescript","tags":[1]}]}}Content-Length: 347
+
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"file:///Users/pfricano/Projects/nova-stylelint/src/main.js","diagnostics":[{"range":{"start":{"line":96,"character":9},"end":{"line":96,"character":17}},"message":"This may be converted to an async function.","severity":4,"code":80006,"source":"typescript","tags":[]}]}}Content-Length: 347
+
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"file:///Users/pfricano/Projects/nova-stylelint/src/main.js","diagnostics":[{"range":{"start":{"line":96,"character":9},"end":{"line":96,"character":17}},"message":"This may be converted to an async function.","severity":4,"code":80006,"source":"typescript","tags":[]}]}}Content-Length: 356
+
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"file:///Users/pfricano/Projects/nova-stylelint/src/util.js","diagnostics":[{"range":{"start":{"line":110,"character":47},"end":{"line":110,"character":53}},"message":"'reject' is declared but its value is never read.","severity":4,"code":6133,"source":"typescript","tags":[1]}]}}Content-Length: 347
+
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"file:///Users/pfricano/Projects/nova-stylelint/src/main.js","diagnostics":[{"range":{"start":{"line":96,"character":9},"end":{"line":96,"character":17}},"message":"This may be converted to an async function.","severity":4,"code":80006,"source":"typescript","tags":[]}]}}Content-Length: 356
+
+{"jsonrpc":"2.0","method":"textDocument/publishDiagnostics","params":{"uri":"file:///Users/pfricano/Projects/nova-stylelint/src/util.js","diagnostics":[{"range":{"start":{"line":110,"character":47},"end":{"line":110,"character":53}},"message":"'reject' is declared but its value is never read.","severity":4,"code":6133,"source":"typescript","tags":[1]}]}}Content-Length: 38
+
+{"jsonrpc":"2.0","id":3,"result":null}
