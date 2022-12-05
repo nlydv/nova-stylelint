@@ -79,6 +79,7 @@ function getPrefs() {
         basedir: val("basedir"),
         // "boolean" type is not nullable, which makes local inheritance of the global value impossible,
         // so instead we use radio buttons for local config with an explicit inherit option (effectively null)
+        // `preferences.getOverridableBoolean` handles that logic
         fixOnSave: preferences.getOverridableBoolean(getFullKey("fixOnSave"))
     };
 
