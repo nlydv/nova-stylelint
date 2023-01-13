@@ -74,11 +74,11 @@
                 "type": "enum",
                 "radio": true,
                 "values": [
-                    ["null", "Inherit from global preferences"],
-                    ["false", "Disable"],
-                    ["true", "Enable"]
+                    ["global", "Inherit global preference"],
+                    [false, "Disable"],
+                    [true, "Enable"]
                 ],
-                "default": "null"
+                "default": "global"
             },
             {
                 "key": "com.neelyadav.Stylelint.fallback.behavior",

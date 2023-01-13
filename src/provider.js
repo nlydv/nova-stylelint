@@ -53,16 +53,24 @@ class IssuesProvider {
         });
     }
 
-    fixIssues(editor) {
+    async fixIssues(editor) {
+        if ( ! this.langsEnabled.has(editor.document.syntax) )
+            return;
+
         function applyFix(res) {
             editor.edit(editorEdit => {
                 editorEdit.replace(new Range(0, editor.document.length), res);
             });
         }
 
-        this.exec(editor, true)
-            .then(applyFix)
-            .catch(err => null);
+        console.log(`Fixing ${editor.document.path}`);
+
+        try {
+            const output = await this.exec(editor, true);
+            applyFix(output);
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     /** @param {TextEditor} editor */

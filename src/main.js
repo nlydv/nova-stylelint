@@ -54,28 +54,25 @@ async function activater() {
     const resetIssues = nova.commands.register("resetIssues", provider.resetIssues);
 
     const handleAddTextEditor = editor => {
-        if (!provider.langsAvail.has(editor.document.syntax)) return;
-        const fixOnSave = getPrefs().fixOnSave;
-        if (!fixOnSave) return;
+        if ( ! provider.langsEnabled.has(editor.document.syntax) ) return;
+        if ( ! getPrefs().fixOnSave ) return;
+        console.log(`watching ${editor.document.path}`);
+
         listeners.add(
-            editor.onWillSave(editor => {
-                nova.commands.invoke("lintFix", editor);
-            })
+            editor.onWillSave(editor => provider.fixIssues(editor))
         );
     };
 
-    const handleConfigChange = () => {
+    const handleConfigChange = name => (cur, prev) => {
+        console.log(`${name}: ${prev} => ${cur}`);
         listeners.dispose(); // always dispose to prevent overlapping listeners
-        const fixOnSave = getPrefs().fixOnSave;
 
-        if (!fixOnSave) return;
+        if ( ! getPrefs().fixOnSave ) return;
 
-        for (const editor of nova.workspace.textEditors) {
-            if (!provider.langsAvail.has(editor.document.syntax)) continue;
+        for ( const editor of nova.workspace.textEditors ) {
+            if ( ! provider.langsEnabled.has(editor.document.syntax) ) continue;
             listeners.add(
-                editor.onWillSave(editor => {
-                    nova.commands.invoke("lintFix", editor);
-                })
+                editor.onWillSave(editor => provider.fixIssues(editor))
             );
         }
     };
@@ -84,9 +81,9 @@ async function activater() {
     composite.add(lintFix);
     composite.add(resetIssues);
     composite.add(assistant);
-    composite.add(nova.config.onDidChange(fixOnSaveKey, handleConfigChange));
-    composite.add(nova.workspace.config.onDidChange(fixOnSaveKey, handleConfigChange));
-    composite.add(nova.workspace.config.onDidChange(inheritGlobalConfigKey, handleConfigChange));
+    composite.add(nova.config.onDidChange(fixOnSaveKey, handleConfigChange("fixOnSave")));
+    composite.add(nova.workspace.config.onDidChange(fixOnSaveKey, handleConfigChange("fixOnSave (local)")));
+    composite.add(nova.workspace.config.onDidChange(inheritGlobalConfigKey, handleConfigChange("inheritGlobal (local)")));
     composite.add(nova.workspace.onDidAddTextEditor(handleAddTextEditor));
 }
 

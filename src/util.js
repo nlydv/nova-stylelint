@@ -1,5 +1,5 @@
 const batteries = require("./batteries");
-const { preferences } = require("nova-extension-utils");
+// const { preferences } = require("nova-extension-utils");
 
 function alert(message, alt = null) {
     if ( alt ) {
@@ -41,11 +41,15 @@ function getPrefs() {
     function val(key) {
         const fullKey = getFullKey(key);
 
+        const globalVal = nova.config.get(fullKey);
+        const localVal = nova.workspace.config.get(fullKey);
+
         let pref = (
-            inheritGlobal
-                ? nova.config.get(fullKey)
-                : nova.workspace.config.get(fullKey)
-                    ?? nova.config.get(fullKey)
+            inheritGlobal && key !== "fixOnSave"
+                ? globalVal
+                : localVal === "global"
+                    ? globalVal
+                    : localVal ?? globalVal
         );
 
         if ( key.endsWith(".path") || pathKeys.includes(key) )
@@ -77,10 +81,7 @@ function getPrefs() {
             path: val("cache.path")
         },
         basedir: val("basedir"),
-        // "boolean" type is not nullable, which makes local inheritance of the global value impossible,
-        // so instead we use radio buttons for local config with an explicit inherit option (effectively null)
-        // `preferences.getOverridableBoolean` handles that logic
-        fixOnSave: preferences.getOverridableBoolean(getFullKey("fixOnSave"))
+        fixOnSave: val("fixOnSave")
     };
 
     prefs.stylelint = (
@@ -164,8 +165,8 @@ async function runProc(dir, ...command) {
         proc.onStderr(line => stderr += line);
         proc.onDidExit(status => {
             // For debugging purposes
-            if ( nova.inDevMode() )
-                console.log(`Path: ${opt.env.PATH}\nFrom: ${opt.cwd}\nCmd:  ${cmd} ${opt.args.join(" ")}`);
+            // if ( nova.inDevMode() )
+            //     console.log(`Path: ${opt.env.PATH}\nFrom: ${opt.cwd}\nCmd:  ${cmd} ${opt.args.join(" ")}`);
 
             status === 0 ? resolve(stdout) : reject(stderr);
         });

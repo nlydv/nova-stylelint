@@ -69,8 +69,8 @@ async function execLinter(editor, fix = false) {
         });
 
         // For debugging purposes
-        if ( nova.inDevMode() )
-            console.log(`Path: ${opt.env.PATH}\nFrom: ${process.cwd}\nCmd:  ${process.args.slice(1).map(i => i.replace(/"/g, "")).join(" ")}`);
+        // if ( nova.inDevMode() )
+        //     console.log(`Path: ${opt.env.PATH}\nFrom: ${process.cwd}\nCmd:  ${process.args.slice(1).map(i => i.replace(/"/g, "")).join(" ")}`);
     });
 
     const result = await linter.catch(e => handleError(e, target));
