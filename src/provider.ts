@@ -1,24 +1,27 @@
-const batteries = require("./batteries");
-const execLinter = require("./linter");
-const { alert, getPrefs } = require("./util");
+// import * as batteries from "./batteries";
+import { execLinter } from "./linter";
+import { alert, getPrefs } from "./util";
 
 
 // @TODO convert properties in constructor to class fields; switch to ESM; config latest Rollup
-class StylelintProvider {
-    constructor() {
-        this.id = "com.neelyadav.Stylelint";
-        /** @type {Set<string>} */
-        this.langsAvail = new Set(["css", "scss", "sass", "less", "html", "php", "cssplus", "scssplus", "advphp"]);
-        /** @type {Set<string>} */
-        this.langsEnabled = getPrefs().getLangs(this.langsAvail);
+export default class StylelintProvider {
+    readonly id = "com.neelyadav.Stylelint";
+    readonly langsAvail = new Set(["css", "scss", "sass", "less", "html", "php", "cssplus", "scssplus", "advphp"]);
 
-        this.hasLiveBatteries = false;
-        this.listeners = new CompositeDisposable();
+    langsEnabled: Set<string> = getPrefs().getLangs(this.langsAvail);
+    hasLiveBatteries = false;
+    isDisabled       = false;
+
+    listeners = new CompositeDisposable();
+
+    constructor() {
+        // this.langsAvail = new Set(["css", "scss", "sass", "less", "html", "php", "cssplus", "scssplus", "advphp"]);
+        // this.langsEnabled = getPrefs().getLangs(this.langsAvail);
 
         const disableKey = `${this.id}.local.disable`;
-        this.isDisabled = nova.workspace.config.get(disableKey);
+        this.isDisabled = nova.workspace.config.get(disableKey, "boolean") ?? false;
         this.listeners.add(
-            nova.workspace.config.onDidChange(disableKey, newValue => {
+            nova.workspace.config.onDidChange<boolean>(disableKey, newValue => {
                 this.isDisabled = newValue;
                 this.resetIssues();
             })
@@ -26,8 +29,8 @@ class StylelintProvider {
 
         for ( const lang of this.langsAvail ) {
             const langKey = `${this.id}.lang.${lang}`;
-            const flipper = bool => {
-                bool ? this.langsEnabled.add(lang) : this.langsEnabled.delete(lang);
+            const flipper = (val: boolean) => {
+                val ? this.langsEnabled.add(lang) : this.langsEnabled.delete(lang);
                 this.resetIssues(lang);
             };
 
@@ -36,15 +39,16 @@ class StylelintProvider {
         }
     }
 
-    exec(editor, fix = false) {
-        if ( ! this.langsEnabled.has(editor.document.syntax) )
+    async exec(editor: TextEditor, fix = false) {
+        const syntax = editor.document.syntax;
+        if ( syntax && ! this.langsEnabled.has(syntax) )
             return null;
 
-        return execLinter(editor, fix).catch(err => {
+        return await execLinter(editor, fix).catch(err => {
             const seeConsole = "\n\nSee extension console for more info.";
             if ( err instanceof Error ) {
                 const headline = `${err.name} [uncaught]:\n${err.message}`;
-                const verbose = headline + (err?.stack.split("\n").join("\n    ") ?? "");
+                const verbose = headline + (err?.stack?.split("\n").join("\n    ") ?? "");
                 console.error(verbose);
                 alert(headline + seeConsole, "Report");
             } else {
@@ -54,20 +58,19 @@ class StylelintProvider {
         });
     }
 
-    fixIssues(editor) {
-        function applyFix(res) {
+    async fixIssues(editor: TextEditor) {
+        function applyFix(res: string) {
             editor.edit(editorEdit => {
                 editorEdit.replace(new Range(0, editor.document.length), res);
             });
         }
 
-        this.exec(editor, true)
-            .then(applyFix)
-            .catch(err => null);
+        return this.exec(editor, true)
+            .then(applyFix);
+            // .catch(err => null);
     }
 
-    /** @param {TextEditor} editor */
-    async provideIssues(editor) {
+    async provideIssues(editor: TextEditor) {
         if ( ! this.hasLiveBatteries || this.isDisabled || editor.document.isEmpty )
             return [];
 
@@ -85,13 +88,15 @@ class StylelintProvider {
         for ( const r of results ) {
             // Stylelint sometimes catches parsing errors internally and returns them in the
             // `.parseErrors` array, but sometimes it'll return duplicates, so first dedupe them:
-            r.parseErrors = [...new Set(r.parseErrors.map(i => JSON.stringify(i)))].map(i => JSON.parse(i));
+            r.parseErrors = [...new Set<string>(
+                r.parseErrors.map((i: any) => JSON.stringify(i)))
+            ].map(i => JSON.parse(i));
 
             for ( const p of r.parseErrors ) {
                 const issue = new Issue();
                 issue.source = "Stylelint";
                 issue.code = "Parse Error";
-                issue.message = /\((?:.*Error: )?(.*)\)$/.exec(p.text)[1];
+                issue.message = /\((?:.*Error: )?(.*)\)$/.exec(p.text)?.[1] ?? "";
                 issue.severity = IssueSeverity.Hint;
                 issue.line = p.line;
                 issue.column = p.column;
@@ -175,18 +180,18 @@ class StylelintProvider {
     // way to do this via their API; standalone `IssueCollection` objects do have
     // such a method, but there's nothing similar if using a full-on Issue Assistant
     // registered with the global `AssistantsRegistry` object.
-    resetIssues(...syntaxes) {
-        syntaxes = syntaxes.length > 0 ? new Set(syntaxes) : this.langsAvail;
+    resetIssues(...syntaxes: string[]) {
+        const langSet = syntaxes.length > 0 ? new Set(syntaxes) : this.langsAvail;
 
         const editors = nova.workspace.textEditors
-            .filter(editor => syntaxes.has(editor.document.syntax));
+            .filter(editor => editor.document.syntax && langSet.has(editor.document.syntax));
 
         for ( const editor of editors ) {
             const wasClean = ! editor.document.isDirty;
             editor.edit(editorEdit => editorEdit.replace(new Range(0, 0), ""))
-                .then(x => editor.document.isDirty && wasClean && editor.save());
+                .then(_ => {
+                    editor.document.isDirty && wasClean && editor.save();
+                });
         }
     }
 }
-
-module.exports = StylelintProvider;

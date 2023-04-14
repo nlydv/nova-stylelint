@@ -1,25 +1,30 @@
 # yaml-language-server: $schema=https://json.schemastore.org/eslintrc.json
 ---
 env:
+    node: false
     browser: false
-    node: true
-    es2021: true
     nova/nova: true
+    es2020: true
 
 parserOptions:
-    ecmaVersion: latest
     sourceType: module
 
-extends: "eslint:recommended"
+extends: eslint:recommended
 
 plugins:
   - nova
 
 ignorePatterns:
-  - "**/node_modules/*"
-  - "**/*.dist.js"
-  - "**/*.json"
-  - "**/*.md"
+  - '*.*'
+  - '!*.js'
+  - '!*.cjs'
+  - '!*.mjs'
+  - '*.min.js'
+  - '*.dist.js'
+  - '!*.ts'
+  - 'node_modules'
+  - 'vendor'
+  - 'dist'
 
 rules:
     indent:
@@ -50,9 +55,7 @@ rules:
     array-element-newline:
       - warn
       - consistent
-    comma-dangle:
-      - warn
-      - never
+
     computed-property-spacing:
       - error
       - never
@@ -61,3 +64,12 @@ rules:
     array-bracket-spacing: off
     no-empty: off
     no-useless-escape: off
+
+# ————— Enable typescript-eslint for TS files only ——————————————————
+
+overrides:
+  - files: '*.ts'
+    plugins:
+      - '@typescript-eslint'
+    parser:
+        '@typescript-eslint/parser'

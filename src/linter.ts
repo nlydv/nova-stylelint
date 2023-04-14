@@ -1,16 +1,17 @@
-const batteries = require("./batteries");
-const { rcWizard } = require("./wizard");
-const { alert, getPrefs, newPath } = require("./util");
+import * as batteries from "./batteries";
+import { rcWizard } from "./wizard";
+import { alert, getPrefs, newPath } from "./util";
 
 
-/** @param {TextEditor} editor */
-async function execLinter(editor, fix = false) {
+export async function execLinter(editor: TextEditor, fix = false) {
     const { document: doc } = editor;
 
     // @TODO replace custom syntax parsing once better system implemented
     const target = doc.isUntitled
         ? nova.path.join(nova.workspace.path ?? batteries.dir, `untitled.${doc.syntax?.replace("plus", "").replace("adv", "")}`)
         : doc.path;
+
+    if ( ! target ) return;
 
     const prefs = getPrefs();
 
@@ -20,21 +21,23 @@ async function execLinter(editor, fix = false) {
         args: [ "-f", "json", "--stdin", "--stdin-filename", target, "--aei" ],
         cwd: nova.path.dirname(target),
         env: nova.environment,
-        stdio: "pipe",
+        stdio: "pipe" as "pipe", // absurd compiler appeasement
         shell: "/bin/bash"
     };
 
     // Prefered executable location via $PATH (unless `exec.custom` is on)
     opt.env.PATH = await newPath(opt.cwd);
 
+    // @TODO do not rely on explicitly overriding type by casting `as string`
+
     // Determine whether to auto-discover config, use specific config, or abort
     const wiz = await rcWizard(target);
     if ( ! wiz )                    return;
     else if ( wiz === "standard" )  opt.args.push("--config", batteries.standard);
-    else if ( wiz === "custom" )    opt.args.push("--config", prefs.fallback.custom);
+    else if ( wiz === "custom" )    opt.args.push("--config", prefs.fallback.custom as string);
 
     // Use pre-packaged "batteries" as basedir if needed otherwise use user-configured dir
-    if ( prefs.basedir )            opt.args.push("--config-basedir", prefs.basedir);
+    if ( prefs.basedir )            opt.args.push("--config-basedir", prefs.basedir as string);
     else if ( wiz === "batteries" ) opt.args.push("--config-basedir", batteries.dir);
 
     // When running "lintFix" command
@@ -42,7 +45,7 @@ async function execLinter(editor, fix = false) {
 
     /* —————————————————————————————————————————————————————————————————— */
 
-    const linter = new Promise((resolve, reject) => {
+    const linter = new Promise<string>((resolve, reject) => {
         let error = "";
         let output = "";
 
@@ -60,8 +63,8 @@ async function execLinter(editor, fix = false) {
 
         process.start();
 
-        const writer = process.stdin.getWriter();
-        writer.ready.then(() => {
+        const writer = process.stdin?.getWriter();
+        writer?.ready.then(() => {
             const text = editor.getTextInRange(new Range(0, doc.length));
             writer.write(text);
             writer.close();
@@ -70,12 +73,16 @@ async function execLinter(editor, fix = false) {
 
         // For debugging purposes
         if ( nova.inDevMode() )
-            console.log(`Path: ${opt.env.PATH}\nFrom: ${process.cwd}\nCmd:  ${process.args.slice(1).map(i => i.replace(/"/g, "")).join(" ")}`);
+            console.log(`Path: ${opt.env.PATH}\nFrom: ${process.cwd}\nCmd:  ${process.args?.slice(1).map(i => i.replace(/"/g, "")).join(" ")}`);
     });
 
     const result = await linter.catch(e => handleError(e, target));
 
-    return ( result instanceof Issue || fix ? result : JSON.parse(result) );
+    // let res = ( result instanceof Issue || fix ? result : JSON.parse(result) );
+    if ( result instanceof Issue || fix )
+        return result;
+    else
+        return result ? JSON.parse(result) : result;
 }
 
 // if ( stderr.startsWith(`[{"${file}"`) ) {
@@ -83,8 +90,7 @@ async function execLinter(editor, fix = false) {
 //     return JSON.parse(stderr);
 // }
 
-function handleError(err, file = null) {
-    /** @type {String} stderr */
+export function handleError(err: string, file?: string) {
     const stderr = err.split("\n");
     if ( stderr[0].includes("Cannot resolve custom syntax module") ) {
         const msg = stderr[0].split("Error: ")[1];
@@ -112,9 +118,9 @@ function handleError(err, file = null) {
             issue.code = "Linter Error";
             issue.message = stderr[0].split("Error: ")[1];
             issue.severity = IssueSeverity.Hint;
-            issue.line = issuable[1];
-            issue.column = issuable[2];
-            issue.endLine = issuable[1] + 1;
+            issue.line = Number.parseInt(issuable?.[1]);
+            issue.column = Number.parseInt(issuable?.[2]);
+            issue.endLine = issue.line + 1;
             issue.endColumn = 0;
             return issue;
         } else {
@@ -122,8 +128,3 @@ function handleError(err, file = null) {
         }
     }
 }
-
-/* —————————————————————————————————————————————————————————————————— */
-/* —————————————————————————————————————————————————————————————————— */
-
-module.exports = execLinter;

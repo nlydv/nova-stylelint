@@ -1,13 +1,12 @@
-const { runProc, alert } = require("./util");
+import { runProc, alert } from "./util";
 
+export let cache    = nova.path.join(nova.extension.globalStoragePath, "/Cache/");
+export let dir      = nova.path.join(nova.extension.path, "Batteries");
+export let bin      = nova.path.join(dir, "node_modules", ".bin");
+export let standard = nova.path.join(dir, "standard.yaml");
+export let linter   = nova.path.join(bin, "stylelint");
 
-let cache    = nova.path.join(nova.extension.globalStoragePath, "/Cache/");
-let dir      = nova.path.join(nova.extension.path, "Batteries");
-let bin      = nova.path.join(dir, "node_modules", ".bin");
-let standard = nova.path.join(dir, "standard.yaml");
-let linter   = nova.path.join(bin, "stylelint");
-
-async function kickstart() {
+export async function kickstart() {
     function check() {
         return nova.fs.access(linter, nova.fs.X_OK);
     }
@@ -49,14 +48,3 @@ async function kickstart() {
 
     return check() || await init() || fatal();
 }
-
-module.exports = {
-    dir,
-    bin,
-    kickstart,
-    // install,
-    // areInstalled,
-    standard,
-    cache,
-    linter
-};

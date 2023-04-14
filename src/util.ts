@@ -1,7 +1,7 @@
 // const batteries = require("./batteries");
 
 
-function alert(message, alt = null) {
+export function alert(message: string, alt?: string): void {
     if ( alt ) {
         nova.workspace.showActionPanel(
             message,
@@ -20,22 +20,27 @@ function alert(message, alt = null) {
     }
 }
 
-function notify(id, msg, type = null, file = null) {
+export function notify(id: string, msg: string, type?: string, file?: string) {
     const notification = new NotificationRequest(id);
     notification.title = "Stylelint";
-    // @TODO clean the following ternary so its not an unreadable mess of syntactic syrup
-    notification.body = type ? `Warning ${type ? `(${type})` : ""}\n\n${msg}` : msg;
-    notification.body += file ? `\n\n${relPath(file)}` : "";
+    notification.body = type
+        ? `Warning (${type})\n\n${msg}`
+        : msg;
+    notification.body += file
+        ? `\n\n${relPath(file)}`
+        : "";
     nova.notifications.add(notification);
 }
 
-function getPrefs() {
+export function getPrefs() {
     const inheritGlobal = nova.workspace.config.get("com.neelyadav.Stylelint.local.inherit");
 
     // @TODO change following key names so all path args end in ".path"
     const pathKeys = [ "basedir", "fallback.custom" ];
 
-    function val(key) {
+    // @TODO convert this (or extract out into own function) for more type-safe config
+    // getters that work with the "coerce" param in Nova's API
+    function val(key: string) {
         const fullKey = `com.neelyadav.Stylelint.${key}`;
 
         let pref = (
@@ -46,50 +51,51 @@ function getPrefs() {
         );
 
         if ( key.endsWith(".path") || pathKeys.includes(key) )
-            pref &&= nova.path.normalize(pref);
+            pref &&= nova.path.normalize(pref as string);
 
         return pref;
     }
 
+    // @TODO remove `as <T>` casts when above todo is implemented
     const prefs = {
-        /**
-         * @param {Set<string>} avail
-         * @returns {Set<string>}
-         */
-        getLangs: avail => {
-            const enabled = new Set().add("css").add("cssplus");
-            for ( const name of avail ) val(`lang.${name}`) && enabled.add(name);
+        getLangs(avail: Set<string>): Set<string> {
+            const enabled = new Set<string>().add("css").add("cssplus");
+            for (const name of avail)
+                val(`lang.${name}`) && enabled.add(name);
             return enabled;
         },
         exec: {
-            custom: val("exec.custom"),
-            path: val("exec.path")
+            custom: val("exec.custom") as boolean,
+            path: val("exec.path") as string | null,
         },
         fallback: {
-            behavior: val("fallback.behavior"),
-            custom: val("fallback.custom")
+            behavior: val("fallback.behavior") as string,
+            custom: val("fallback.custom") as string | null,
         },
         cache: {
-            on: val("cache.on"),
-            path: val("cache.path")
+            on: val("cache.on") as boolean,
+            path: val("cache.path") as string | null,
         },
-        basedir: val("basedir")
+        basedir: val("basedir") as string | null,
+        stylelint: "stylelint",
     };
 
-    prefs.stylelint = (
-        prefs.exec.custom
-            ? ( prefs.exec.path ?? "stylelint" )
-            : "stylelint"
-    );
+    // prefs.stylelint = (
+    //     prefs.exec.custom
+    //         ? ( prefs.exec.path ?? "stylelint" )
+    //         : "stylelint"
+    // );
+    if ( prefs.exec.custom )
+        prefs.stylelint = prefs.exec.path as string ?? "stylelint";
 
     return prefs;
 }
 
-function relPath(path) {
+export function relPath(path: string) {
     return nova.workspace.relativizePath(path);
 }
 
-async function newPath(cwd = null) {
+export async function newPath(cwd?: string) {
     const batteryBin = nova.path.join(nova.extension.path, "Batteries", "node_modules", ".bin");
     let newPath = [ nova.environment.PATH, batteryBin ];
 
@@ -99,45 +105,44 @@ async function newPath(cwd = null) {
         args: [ "bin" ],
         cwd: cwd,
         env: nova.environment,
-        stdio: "pipe",
+        stdio: "pipe" as "pipe", // absurd compiler appeasement
         shell: "/bin/bash"
     };
 
-    const npxDir = await new Promise((resolve, reject) => {
+    const npxDir: string | null = await new Promise(resolve => {
         let stdout = "";
-        let stderr = "";
         const proc = new Process("npm", opt);
         proc.onStdout(line => stdout += line.trim());
-        proc.onStderr(line => stderr += line);
+        proc.onStderr(console.error);
         proc.onDidExit(status => {
-            if ( stderr ) console.error(stderr);
             status === 0 ? resolve(stdout) : resolve(null);
         });
         proc.start();
     });
 
-    const hasLocalLinter = (
-        npxDir
-            ? nova.fs.access(nova.path.join(npxDir, "stylelint"), nova.fs.X_OK)
-            : false
-    );
+    // const hasLocalLinter = (
+    //     npxDir
+    //         ? nova.fs.access(nova.path.join(npxDir, "stylelint"), nova.fs.X_OK)
+    //         : false
+    // );
 
-    if ( hasLocalLinter ) newPath.unshift(npxDir);
+    if ( npxDir ) {
+        const hasLocalLinter = nova.fs.access(nova.path.join(npxDir, "stylelint"), nova.fs.X_OK);
+        hasLocalLinter && newPath.unshift(npxDir);
+    }
 
     return newPath.join(":");
 }
 
-async function runProc(dir, ...command) {
-    if ( command.every(c => c instanceof Array) )
-        command = command.flat();
-
-    const [ cmd, args ] = [ command.shift(), command ];
+export async function runProc(dir: string, cmd: string, ...args: Array<string|string[]>) {
+    // if ( args.every(c => c instanceof Array) )
+    //     args = args.flat();
 
     const opt = {
-        args: args,
+        args: args.flat(),
         cwd: dir ?? nova.extension.path,
         env: nova.environment,
-        stdio: "pipe",
+        stdio: "pipe" as "pipe", // absurd compiler appeasement
         shell: "/bin/bash"
     };
 
@@ -167,12 +172,3 @@ async function runProc(dir, ...command) {
         proc.start();
     });
 }
-
-module.exports = {
-    alert,
-    notify,
-    getPrefs,
-    runProc,
-    relPath,
-    newPath
-};

@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://json.schemastore.org/stylelintrc.json
 ---
 extends: stylelint-config-standard
 
@@ -236,3 +237,8 @@ overrides:
       - "/**/*.html"
 
     customSyntax: postcss-html
+
+    rules:
+      indentation:
+        - 4
+        - baseIndentLevel: auto

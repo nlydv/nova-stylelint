@@ -1,42 +1,42 @@
-const batteries = require("./batteries");
-const { getPrefs, relPath, runProc, alert, notify } = require("./util");
+import * as batteries from "./batteries";
+import { getPrefs, relPath, runProc, alert, notify } from "./util";
 
 
-const rc = {
-    OK:        "A0",
-    BATT_OK:   "B0",
-    BATT_FAIL: "B1",
-    USER_FAIL: "C1",
-    NONE:      "FF"
-};
+enum RC {
+    OK,
+    BATT_OK,
+    BATT_FAIL,
+    USER_FAIL,
+    NONE
+}
 
-async function resolveConfig(file) {
+async function resolveConfig(file: string) {
     const cwd = nova.path.dirname(file);
     const { basedir, stylelint } = getPrefs();
 
-    async function runCheck(configBaseDir = null) {
-        const command = [ stylelint, "--print-config", file ];
-        if ( configBaseDir ) command.push("--config-basedir", configBaseDir);
+    async function runCheck(configBaseDir?: string | null) {
+        const args = [ "--print-config", file ];
+        if ( configBaseDir ) args.push("--config-basedir", configBaseDir);
 
         // return await runProc(args.join(" "), cwd);
-        return await runProc(cwd, command);
+        return await runProc(cwd, stylelint, ...args);
     }
 
     const resolution = {
-        status: rc.NONE,
+        status: RC.NONE,
         error: ""
     };
 
     try {
         await runCheck(basedir);
-        resolution.status = rc.OK;
+        resolution.status = RC.OK;
         return resolution;
     } catch (err1) {
         resolution.error = err1.split("\n")[0].split(/^\w+: /)[1];
 
         // stylelint does NOT find rc, triggers fallback switch
         if ( resolution.error.includes("No configuration provided") ) {
-            resolution.status = rc.NONE;
+            resolution.status = RC.NONE;
             console.warn(err1);
             return resolution;
         }
@@ -45,16 +45,16 @@ async function resolveConfig(file) {
         else if ( resolution.error.includes("configBasedir") ) {
             // do not retry by plugging batteries when user-provided basedir fails (unexpected results possible)
             if ( basedir ) {
-                resolution.status = rc.USER_FAIL;
+                resolution.status = RC.USER_FAIL;
                 console.warn(err1);
                 return resolution;
             } else {
                 try { // exact same command again, but with "batteries included"
                     await runCheck(batteries.dir);
-                    resolution.status = rc.BATT_OK;
+                    resolution.status = RC.BATT_OK;
                     return resolution;
                 } catch (err2) {
-                    resolution.status = rc.BATT_FAIL;
+                    resolution.status = RC.BATT_FAIL;
                     // Deliberately not replacing resolution.error with new err2 message...
                     // user should only get original error (err1), which they can remedy; err2
                     // only indicates an inability to provide a convenient fallback when user
@@ -65,13 +65,15 @@ async function resolveConfig(file) {
             }
         }
     }
+
+    return resolution;
 }
 
-async function rcWizard(file) {
+export async function rcWizard(file: string) {
     const prefs = getPrefs();
     const { status, error } = await resolveConfig(file);
 
-    if ( status === rc.NONE ) {
+    if ( status === RC.NONE ) {
         const message = `No available stylelintrc config file found\n\n${relPath(file)}`;
 
         switch ( prefs.fallback.behavior ) {
@@ -92,7 +94,7 @@ async function rcWizard(file) {
                 return "standard";
 
             case "custom":
-                if ( nova.fs.access(prefs.fallback.custom, nova.fs.F_OK) ) {
+                if ( prefs.fallback.custom && nova.fs.access(prefs.fallback.custom, nova.fs.F_OK) ) {
                     return "custom";
                 } else {
                     alert(msg.enoent("Fallback config", prefs.fallback.custom), "Settings");
@@ -105,11 +107,11 @@ async function rcWizard(file) {
         }
     }
 
-    else if ( status === rc.BATT_OK ) {
+    else if ( status === RC.BATT_OK ) {
         return "batteries";
     }
 
-    else if ( status === rc.BATT_FAIL ) {
+    else if ( status === RC.BATT_FAIL ) {
         // resolveConfig() passed configBasedir error forward, now we pass to user
         const message = error + "\n" + msg.naivePkg;
         alert(message, "Settings");
@@ -117,9 +119,12 @@ async function rcWizard(file) {
         return null;
     }
 
-    else if ( status === rc.USER_FAIL ) {
-        const message = error + "\n" + msg.basedirPkg(prefs.basedir);
+    else if ( status === RC.USER_FAIL ) {
+        let message = error;
+        if ( prefs.basedir )
+            message += "\n" + msg.basedirPkg(prefs.basedir);
         alert(message, "Settings");
+        return null;
     }
 
     else {
@@ -138,9 +143,9 @@ async function rcWizard(file) {
 const msg = {
     // @TODO factor out all feedback messages/alerts/prompts into dedicated module
 
-    enoent: (type, path) => `${type} path does not exist:\n\n"${path}"`,
+    enoent: (type: string, path: string | null) => `${type} path does not exist:\n\n"${path ?? ""}"`,
 
-    basedirPkg: configBasedir => `
+    basedirPkg: (configBasedir: string) => `
 We tried looking for this package in your configBasedir:
 ${configBasedir}
 
@@ -151,5 +156,3 @@ Alternatively, try installing the package globally.`,
 Try installing this package to your project locally.
 Alternatively, set a Config Basedir in settings.`
 };
-
-module.exports = { rcWizard };

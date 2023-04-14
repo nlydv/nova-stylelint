@@ -19,22 +19,24 @@
         "type": "git",
         "url": "git+https://github.com/nlydv/nova-stylelint.git"
     },
-    "main": "./src/main.js",
+    "main": "./src/main.ts",
     "scripts": {
-        "build": "npx rollup -c && cp -p *.md Stylelint.novaextension/ && npm shrinkwrap && cd Stylelint.novaextension/Batteries && npm shrinkwrap",
-        "clean": "rm -r Stylelint.novaextension/{*.md,Scripts/*.js,Batteries/node_modules} || exit 0",
+        "build:ts": "esbuild --bundle --minify --tree-shaking --target=safari14 --format=cjs --banner:js='/* eslint-disable */// @ts-nocheck' --color --outfile=Stylelint.novaextension/Scripts/main.dist.js src/main.ts",
+        "lint": "tsc --noEmit",
+        "build": "npm run lint && npm run build:ts && cp -p *.md Stylelint.novaextension/ && cd Stylelint.novaextension/Batteries && npm shrinkwrap",
+        "clean": "rm -rf Stylelint.novaextension/{*.md,Scripts/*.js,Batteries/node_modules} || exit 0",
         "release": "source .env && npx release-it",
-        "watch": "onchange -i \"src/*.js\" -- npm run build"
+        "watch": "onchange -i \"src/*.ts\" -- npm run build"
     },
     "devDependencies": {
-        "@rollup/plugin-commonjs": "11.0.1",
-        "@rollup/plugin-json": "4.1.0",
-        "@rollup/plugin-node-resolve": "7.0.0",
         "@types/nova-editor-node": "^4.1.4",
+        "@typescript-eslint/eslint-plugin": "^5.58.0",
+        "@typescript-eslint/parser": "^5.58.0",
+        "esbuild": "^0.17.16",
         "eslint": "^8.20.0",
         "eslint-plugin-nova": "^1.7.0",
         "onchange": "^7.1.0",
         "release-it": "^15.2.0",
-        "rollup": "1.30.1"
+        "typescript": "^5.0.4"
     }
 }

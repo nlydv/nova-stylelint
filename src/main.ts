@@ -15,14 +15,14 @@
  *
  */
 
-const batteries = require("./batteries");
-const StylelintProvider = require("./provider");
+import * as batteries from "./batteries";
+import StylelintProvider from "./provider";
 
 
 const composite = new CompositeDisposable();
 const provider = new StylelintProvider();
 
-async function activate() {
+export async function activate() {
     // This is to avoid premature execution and naively throwing around promises
     // that resulted in jittery and often unpredictable behavior previously.
     provider.hasLiveBatteries = await batteries.kickstart();
@@ -57,7 +57,7 @@ async function activate() {
     console.log("Stylelint extension for Nova has activated.");
 }
 
-function deactivate() {
+export function deactivate() {
     // Curious as to what exactly "disposal" means for Nova... e.g. here we're disposing
     // issue assistant's disposable properties before disposing issue assistant itself,
     // which is logical enough, but would it be problematic to do it the other way around?
@@ -67,7 +67,3 @@ function deactivate() {
     console.log("Stylelint extension for Nova has deactivated.");
 }
 
-module.exports = {
-    activate,
-    deactivate
-};
