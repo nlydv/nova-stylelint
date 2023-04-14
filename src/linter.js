@@ -78,6 +78,11 @@ async function execLinter(editor, fix = false) {
     return ( result instanceof Issue || fix ? result : JSON.parse(result) );
 }
 
+// if ( stderr.startsWith(`[{"${file}"`) ) {
+//     notify(`fix:${file}`, "autofix", "Stylelint was unable to autofix the contents of your file. Sometimes this can happen when a syntax issue prevents it from fully parsing (and thus fixing) your stylesheet.");
+//     return JSON.parse(stderr);
+// }
+
 function handleError(err, file = null) {
     /** @type {String} stderr */
     const stderr = err.split("\n");

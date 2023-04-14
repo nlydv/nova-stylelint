@@ -20,11 +20,12 @@ function alert(message, alt = null) {
     }
 }
 
-function notify(id, msg, type = null) {
+function notify(id, msg, type = null, file = null) {
     const notification = new NotificationRequest(id);
     notification.title = "Stylelint";
     // @TODO clean the following ternary so its not an unreadable mess of syntactic syrup
     notification.body = type ? `Warning ${type ? `(${type})` : ""}\n\n${msg}` : msg;
+    notification.body += file ? `\n\n${relPath(file)}` : "";
     nova.notifications.add(notification);
 }
 
