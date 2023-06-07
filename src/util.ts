@@ -105,7 +105,7 @@ export async function newPath(cwd?: string) {
         args: [ "bin" ],
         cwd: cwd,
         env: nova.environment,
-        stdio: "pipe" as "pipe", // absurd compiler appeasement
+        stdio: "pipe" as const,
         shell: "/bin/bash"
     };
 
@@ -142,7 +142,7 @@ export async function runProc(dir: string, cmd: string, ...args: Array<string|st
         args: args.flat(),
         cwd: dir ?? nova.extension.path,
         env: nova.environment,
-        stdio: "pipe" as "pipe", // absurd compiler appeasement
+        stdio: "pipe" as const,
         shell: "/bin/bash"
     };
 

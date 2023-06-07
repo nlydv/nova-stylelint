@@ -21,7 +21,7 @@
     },
     "main": "./src/main.ts",
     "scripts": {
-        "build:ts": "esbuild --bundle --minify --tree-shaking --target=safari14 --format=cjs --banner:js='/* eslint-disable */// @ts-nocheck' --color --outfile=Stylelint.novaextension/Scripts/main.dist.js src/main.ts",
+        "build:ts": "esbuild --bundle --minify --tree-shaking --sourcemap --target=es2020 --platform=node --format=cjs --analyze --banner:js='/* eslint-disable */// @ts-nocheck' --color --outfile=Stylelint.novaextension/Scripts/main.dist.js src/main.ts",
         "lint": "tsc --noEmit",
         "build": "npm run lint && npm run build:ts && cp -p *.md Stylelint.novaextension/ && cd Stylelint.novaextension/Batteries && npm shrinkwrap",
         "clean": "rm -rf Stylelint.novaextension/{*.md,Scripts/*.js,Batteries/node_modules} || exit 0",
@@ -29,7 +29,7 @@
         "watch": "onchange -i \"src/*.ts\" -- npm run build"
     },
     "devDependencies": {
-        "@types/nova-editor-node": "^4.1.4",
+        "@types/nova-editor-node": "^5.1.0",
         "@typescript-eslint/eslint-plugin": "^5.58.0",
         "@typescript-eslint/parser": "^5.58.0",
         "esbuild": "^0.17.16",

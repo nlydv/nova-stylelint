@@ -21,7 +21,7 @@ export async function execLinter(editor: TextEditor, fix = false) {
         args: [ "-f", "json", "--stdin", "--stdin-filename", target, "--aei" ],
         cwd: nova.path.dirname(target),
         env: nova.environment,
-        stdio: "pipe" as "pipe", // absurd compiler appeasement
+        stdio: "pipe" as const,
         shell: "/bin/bash"
     };
 
