@@ -95,43 +95,43 @@ export function relPath(path: string) {
     return nova.workspace.relativizePath(path);
 }
 
-export async function newPath(cwd?: string) {
-    const batteryBin = nova.path.join(nova.extension.path, "Batteries", "node_modules", ".bin");
-    let newPath = [ nova.environment.PATH, batteryBin ];
+export async function newPath(cwd = nova.workspace.path): Promise<string> {
+    const paths = nova.environment.PATH?.split(":") ?? [];
+    paths.push(nova.path.join(nova.extension.path, "Batteries", "node_modules", ".bin"));
 
-    if ( ! cwd ) return newPath.join(":");
+    if ( ! cwd ) {
+        const doc = nova.workspace.activeTextEditor?.document.path;
+        if ( doc ) cwd = nova.path.dirname(doc);
+        else return paths.join(":");
+    }
 
     const opt = {
-        args: [ "bin" ],
-        cwd: cwd,
+        cwd,
+        args: [ "prefix" ],
         env: nova.environment,
         stdio: "pipe" as const,
         shell: "/bin/bash"
     };
 
-    const npxDir: string | null = await new Promise(resolve => {
+    await new Promise<void>(resolve => {
         let stdout = "";
         const proc = new Process("npm", opt);
         proc.onStdout(line => stdout += line.trim());
         proc.onStderr(console.error);
         proc.onDidExit(status => {
-            status === 0 ? resolve(stdout) : resolve(null);
+            if ( status === 0 ) {
+                const bin = nova.path.join(stdout, "node_modules", ".bin");
+                if ( nova.fs.access(bin, nova.fs.R_OK) )
+                    paths.unshift(bin);
+            } else {
+                console.error(stdout);
+            }
+            resolve();
         });
         proc.start();
     });
 
-    // const hasLocalLinter = (
-    //     npxDir
-    //         ? nova.fs.access(nova.path.join(npxDir, "stylelint"), nova.fs.X_OK)
-    //         : false
-    // );
-
-    if ( npxDir ) {
-        const hasLocalLinter = nova.fs.access(nova.path.join(npxDir, "stylelint"), nova.fs.X_OK);
-        hasLocalLinter && newPath.unshift(npxDir);
-    }
-
-    return newPath.join(":");
+    return paths.join(":");
 }
 
 export async function runProc(dir: string, cmd: string, ...args: Array<string|string[]>) {
