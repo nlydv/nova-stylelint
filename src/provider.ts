@@ -45,16 +45,14 @@ export default class StylelintProvider {
             return null;
 
         return await execLinter(editor, fix).catch(err => {
-            const seeConsole = "\n\nSee extension console for more info.";
-            if ( err instanceof Error ) {
-                const headline = `${err.name} [uncaught]:\n${err.message}`;
-                const verbose = headline + (err?.stack?.split("\n").join("\n    ") ?? "");
-                console.error(verbose);
-                alert(headline + seeConsole, "Report");
-            } else {
-                console.error(err + seeConsole);
-                alert(`Uncaught Error\n\n${err.split("\n")[0].split("Error: ")[1]}`, "Report");
-            }
+            const message = err instanceof Error
+                ? `Uncaught ${err.name}:\n${err.message}\n\nSee extension console for more info.`
+                : typeof err === "string"
+                    ? `Uncaught Error:\n${err.trim().replace(/^Error: /, "")}`
+                    : `Uncaught Error\n\n${err}`;
+
+            console.error(err);
+            alert("uncaught", message, "Report");
         });
     }
 

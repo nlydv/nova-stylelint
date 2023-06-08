@@ -25,7 +25,7 @@ export async function kickstart() {
             const msg = "Extension dependency installation was unsuccessful.";
             const hint = "Make sure Node.js and npm are installed and that Nova is able to access both CLIs through your $PATH environment variable.";
 
-            alert(`${title}\n\n${msg}\n\n${hint}`, "Report");
+            alert("batteries", `${title}\n\n${msg}\n\n${hint}`, "Report");
             return false;
         }
     }

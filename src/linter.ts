@@ -100,7 +100,7 @@ export function handleError(err: string, file?: string) {
         let formatted = `Custom Syntax Resolution Error\n\n${msg}\n\n${note}`;
 
         console.error(formatted);
-        alert(formatted);
+        alert("exec", formatted);
         return null;
     } else {
         // Checks if first line of stack trace mentions the path of the file we just

@@ -1,8 +1,8 @@
 import * as batteries from "./batteries";
-import { getPrefs, relPath, runProc, alert, notify } from "./util";
+import { getPrefs, relPath, runProc, alert } from "./util";
 
 
-enum RC {
+const enum RC {
     OK,
     BATT_OK,
     BATT_FAIL,
@@ -32,7 +32,9 @@ async function resolveConfig(file: string) {
         resolution.status = RC.OK;
         return resolution;
     } catch (err1) {
-        resolution.error = err1.split("\n")[0].split(/^\w+: /)[1];
+        // `runProc` throws stderr output as string
+        if ( typeof err1 !== "string" ) throw err1;
+        resolution.error = err1.split("\n")[0].split(/^\w+: /)?.[1] ?? err1;
 
         // stylelint does NOT find rc, triggers fallback switch
         if ( resolution.error.includes("No configuration provided") ) {
@@ -59,7 +61,9 @@ async function resolveConfig(file: string) {
                     // user should only get original error (err1), which they can remedy; err2
                     // only indicates an inability to provide a convenient fallback when user
                     // config is insufficient.
-                    console.warn(err1);
+                    console.error(err1);
+                    const pkg = resolution.error.match(/^Could not find "(.+)". Do you need the "configBasedir" or "--config-basedir" option\?$/)?.[1];
+                    if ( pkg ) resolution.error = `Missing "${pkg}" package required by Stylelint config.`;
                     return resolution;
                 }
             }
@@ -74,20 +78,9 @@ export async function rcWizard(file: string) {
     const { status, error } = await resolveConfig(file);
 
     if ( status === RC.NONE ) {
-        const message = `No available stylelintrc config file found\n\n${relPath(file)}`;
-
         switch ( prefs.fallback.behavior ) {
-            case "none": // back compat (v1.0.4)
-            case "loud":
-                alert(message);
-                return null;
-
-            case "quiet":
-                notify("noStylelintrc", message, "stylelintrc");
-                return null;
-
-            case "ignore": // back compat (v1.0.4)
-            case "silent":
+            case "silent": // back compat <3.0.0
+            case "ignore":
                 return null;
 
             case "standard":
@@ -97,13 +90,16 @@ export async function rcWizard(file: string) {
                 if ( prefs.fallback.custom && nova.fs.access(prefs.fallback.custom, nova.fs.F_OK) ) {
                     return "custom";
                 } else {
-                    alert(msg.enoent("Fallback config", prefs.fallback.custom), "Settings");
+                    alert("rc", msg.enoent("Fallback config", prefs.fallback.custom), "Settings");
                     return null;
                 }
 
             default:
-                // @TODO create custom Error class for standardized catching/handling in downstream code
-                throw new Error("Unforseen outcome in conditional logic\n\nPlease open an issue report in the GitHub repository");
+            case "quiet": // back compat <3.0.0
+            case "load": // back compat <3.0.0
+            case "notify":
+                alert("noConfig", `No Stylelint config found\n\n${relPath(file)}`, "Settings");
+                return null;
         }
     }
 
@@ -114,7 +110,7 @@ export async function rcWizard(file: string) {
     else if ( status === RC.BATT_FAIL ) {
         // resolveConfig() passed configBasedir error forward, now we pass to user
         const message = error + "\n" + msg.naivePkg;
-        alert(message, "Settings");
+        alert("rc", message, "Settings");
 
         return null;
     }
@@ -123,7 +119,7 @@ export async function rcWizard(file: string) {
         let message = error;
         if ( prefs.basedir )
             message += "\n" + msg.basedirPkg(prefs.basedir);
-        alert(message, "Settings");
+        alert("rc", message, "Settings");
         return null;
     }
 
@@ -152,7 +148,5 @@ ${configBasedir}
 Double check that the package is installed there.
 Alternatively, try installing the package globally.`,
 
-    naivePkg: `
-Try installing this package to your project locally.
-Alternatively, set a Config Basedir in settings.`
+    naivePkg: "\nTry locally installing this package in your project. Alternatively, set a Config Basedir in settings."
 };

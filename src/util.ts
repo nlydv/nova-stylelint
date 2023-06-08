@@ -1,35 +1,20 @@
 // const batteries = require("./batteries");
 
+export async function alert(id: string, message: string, action?: "Settings" | "Report"): Promise<void> {
+    const toast = new NotificationRequest(id);
+    toast.title = "Stylelint";
+    toast.body = message;
+    toast.actions = action
+        ? [ "Dismiss", action ]
+        : undefined;
 
-export function alert(message: string, alt?: string): void {
-    if ( alt ) {
-        nova.workspace.showActionPanel(
-            message,
-            { buttons: [ "OK", alt ] },
-            buttonIndex => {
-                if ( buttonIndex === 1 ) switch (alt) {
-                    case "Settings": return nova.openConfig();
-                    // @TODO provide option for adding details in input box within alert itself for less friction
-                    case "Report":  return nova.openURL("https://github.com/nlydv/nova-stylelint/issues/new");
-                    default: alert("The developer gave you a button that doesn't do anything\n\n...so unprofessional 🙄");
-                }
-            }
-        );
-    } else {
-        nova.workspace.showErrorMessage(message);
+    const response = nova.notifications.add(toast);
+
+    if ( toast.actions && (await response).actionIdx === 1 ) {
+        action === "Settings"
+            ? nova.openConfig()
+            : nova.openURL("https://github.com/nlydv/nova-stylelint/issues/new");
     }
-}
-
-export function notify(id: string, msg: string, type?: string, file?: string) {
-    const notification = new NotificationRequest(id);
-    notification.title = "Stylelint";
-    notification.body = type
-        ? `Warning (${type})\n\n${msg}`
-        : msg;
-    notification.body += file
-        ? `\n\n${relPath(file)}`
-        : "";
-    nova.notifications.add(notification);
 }
 
 export function getPrefs() {
@@ -80,11 +65,6 @@ export function getPrefs() {
         stylelint: "stylelint",
     };
 
-    // prefs.stylelint = (
-    //     prefs.exec.custom
-    //         ? ( prefs.exec.path ?? "stylelint" )
-    //         : "stylelint"
-    // );
     if ( prefs.exec.custom )
         prefs.stylelint = prefs.exec.path as string ?? "stylelint";
 
@@ -134,6 +114,7 @@ export async function newPath(cwd = nova.workspace.path): Promise<string> {
     return paths.join(":");
 }
 
+/** @throws {string} - stderr output if process exits with non-zero status */
 export async function runProc(dir: string, cmd: string, ...args: Array<string|string[]>) {
     // if ( args.every(c => c instanceof Array) )
     //     args = args.flat();

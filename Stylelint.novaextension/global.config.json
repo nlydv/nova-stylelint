@@ -52,17 +52,16 @@
         "children": [
             {
                 "key": "com.neelyadav.Stylelint.fallback.behavior",
-                "title": "Config file not found behavior",
+                "title": "Config not found behavior",
                 "type": "enum",
                 "radio": true,
                 "values": [
-                    [ "loud", "Display error" ],
-                    [ "quiet", "Quiet notification" ],
-                    [ "silent", "Silently abort linting" ],
-                    [ "standard", "Lint with stylelint-config-standard" ],
-                    [ "custom", "Lint with custom config file set below" ]
+                    [ "notify", "Notify" ],
+                    [ "ignore", "Ignore" ],
+                    [ "standard", "Use `stylelint-config-standard`" ],
+                    [ "custom", "Use custom config file below" ]
                 ],
-                "default": "loud"
+                "default": "notify"
             },
             {
                 "key": "com.neelyadav.Stylelint.fallback.custom",
