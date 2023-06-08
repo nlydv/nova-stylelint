@@ -1,5 +1,32 @@
 [
     {
+        "title": "General",
+        "type": "section",
+        "children": [
+            {
+                "title": "Ignore Remote",
+                "description": "Skip linting files not on the local filesystem",
+                "type": "boolean",
+                "default": true
+            },
+            {
+                "key": "com.neelyadav.Stylelint.exec.custom",
+                "title": "Use specific Stylelint executable",
+                "description": "If enabled, the path to Stylelint set below will always be used instead of finding a preferred executable location.",
+                "type": "boolean",
+                "default": false
+            },
+            {
+                "key": "com.neelyadav.Stylelint.exec.path",
+                "title": "Absolute Stylelint path",
+                "description": "Ignored when above option is disabled.",
+                "type": "path",
+                "placeholder": "~/Developer/node_modules/.bin/stylelint",
+                "default": null
+            }
+        ]
+    },
+    {
         "title": "Languages",
         "description": "Select additional file types to lint (plain CSS is always enabled by default).\nNote: using Stylelint on non-CSS files requires installing and configuring extra plugins and/or custom syntax modules.",
         "link": "https://stylelint.io/migration-guide/to-14",
@@ -22,27 +49,6 @@
                 "title": "Less",
                 "type": "boolean",
                 "default": false
-            }
-        ]
-    },
-    {
-        "title": "Executable",
-        "type": "section",
-        "children": [
-            {
-                "key": "com.neelyadav.Stylelint.exec.custom",
-                "title": "Use specific Stylelint executable",
-                "description": "If enabled, the path to Stylelint set below will always be used instead of finding a preferred executable location.",
-                "type": "boolean",
-                "default": false
-            },
-            {
-                "key": "com.neelyadav.Stylelint.exec.path",
-                "title": "Absolute Stylelint path",
-                "description": "Ignored when above option is disabled.",
-                "type": "path",
-                "placeholder": "~/Developer/node_modules/.bin/stylelint",
-                "default": null
             }
         ]
     },
@@ -78,9 +84,9 @@
                 "link": "https://stylelint.io/user-guide/usage/cli#--config-basedir",
                 "type": "path",
                 "placeholder": "~/Developer",
-                "default": null,
                 "allowFiles": false,
-                "allowFolders": true
+                "allowFolders": true,
+                "default": null
             }
         ]
     }

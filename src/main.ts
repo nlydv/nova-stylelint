@@ -54,7 +54,7 @@ export async function activate() {
     composite.add(resetIssues);
     composite.add(assistant);
 
-    console.log("Stylelint extension for Nova has activated.");
+    console.log("Stylelint extension activated.");
 }
 
 export function deactivate() {
@@ -64,6 +64,6 @@ export function deactivate() {
     provider.listeners.dispose();
     composite.dispose();
 
-    console.log("Stylelint extension for Nova has deactivated.");
+    console.log("Stylelint extension deactivated.");
 }
 

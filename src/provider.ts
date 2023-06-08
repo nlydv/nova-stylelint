@@ -3,25 +3,25 @@ import { execLinter } from "./linter";
 import { alert, getPrefs } from "./util";
 
 
-// @TODO convert properties in constructor to class fields; switch to ESM; config latest Rollup
 export default class StylelintProvider {
     readonly id = "com.neelyadav.Stylelint";
     readonly langsAvail = new Set(["css", "scss", "sass", "less", "html", "php", "cssplus", "scssplus", "advphp"]);
 
-    langsEnabled: Set<string> = getPrefs().getLangs(this.langsAvail);
+    langsEnabled: Set<string>;
+    ignoreRemote: boolean;
+    isDisabled: boolean;
     hasLiveBatteries = false;
-    isDisabled       = false;
 
     listeners = new CompositeDisposable();
 
     constructor() {
-        // this.langsAvail = new Set(["css", "scss", "sass", "less", "html", "php", "cssplus", "scssplus", "advphp"]);
-        // this.langsEnabled = getPrefs().getLangs(this.langsAvail);
+        const { getLangs, isDisabled, ignoreRemote } = getPrefs();
+        this.langsEnabled = getLangs(this.langsAvail);
+        this.ignoreRemote = ignoreRemote;
+        this.isDisabled = isDisabled;
 
-        const disableKey = `${this.id}.local.disable`;
-        this.isDisabled = nova.workspace.config.get(disableKey, "boolean") ?? false;
         this.listeners.add(
-            nova.workspace.config.onDidChange<boolean>(disableKey, newValue => {
+            nova.workspace.config.onDidChange<boolean>(`${this.id}.local.disable`, newValue => {
                 this.isDisabled = newValue;
                 this.resetIssues();
             })
@@ -40,9 +40,11 @@ export default class StylelintProvider {
     }
 
     async exec(editor: TextEditor, fix = false) {
-        const syntax = editor.document.syntax;
-        if ( syntax && ! this.langsEnabled.has(syntax) )
-            return null;
+        const ignore = ! this.langsEnabled.has(editor.document.syntax ?? "")
+            || editor.document.path?.startsWith(nova.path.expanduser("~/.Trash"))
+            || editor.document.isRemote && this.ignoreRemote;
+
+        if ( ignore ) return null;
 
         return await execLinter(editor, fix).catch(err => {
             const message = err instanceof Error

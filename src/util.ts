@@ -28,12 +28,12 @@ export function getPrefs() {
     function val(key: string) {
         const fullKey = `com.neelyadav.Stylelint.${key}`;
 
-        let pref = (
-            inheritGlobal
+        let pref = key.startsWith("local.")
+            ? nova.workspace.config.get(fullKey)
+            : inheritGlobal
                 ? nova.config.get(fullKey)
                 : nova.workspace.config.get(fullKey)
-                    ?? nova.config.get(fullKey)
-        );
+                    ?? nova.config.get(fullKey);
 
         if ( key.endsWith(".path") || pathKeys.includes(key) )
             pref &&= nova.path.normalize(pref as string);
@@ -41,7 +41,7 @@ export function getPrefs() {
         return pref;
     }
 
-    // @TODO remove `as <T>` casts when above todo is implemented
+    // @TODO remove `as boolean`, `as string`, etc. casts when above todo is implemented
     const prefs = {
         getLangs(avail: Set<string>): Set<string> {
             const enabled = new Set<string>().add("css").add("cssplus");
@@ -50,7 +50,7 @@ export function getPrefs() {
             return enabled;
         },
         exec: {
-            custom: val("exec.custom") as boolean,
+            custom: val("exec.custom") as boolean || false,
             path: val("exec.path") as string | null,
         },
         fallback: {
@@ -58,11 +58,13 @@ export function getPrefs() {
             custom: val("fallback.custom") as string | null,
         },
         cache: {
-            on: val("cache.on") as boolean,
+            on: val("cache.on") as boolean || false,
             path: val("cache.path") as string | null,
         },
         basedir: val("basedir") as string | null,
         stylelint: "stylelint",
+        ignoreRemote: val("ignoreRemote") as boolean || false,
+        isDisabled: val("local.disable") as boolean || false
     };
 
     if ( prefs.exec.custom )
