@@ -51,9 +51,11 @@ async function execLinter(editor, fix = false) {
         process.onStderr(line => error += line);
         process.onStdout(line => output += line);
 
+        // stylelint 1.6x outputs to stderr instead of stdout
+
         process.onDidExit(status => {
             if ( status === 0 || status === 2 )
-                resolve(output);
+                resolve(output ? output : error);
             else
                 reject(error);
         });
